@@ -79,16 +79,13 @@ func (keyInput *KeyInput) ProcessEvent(event *termbox.Event) {
 		return
 	}
 
-	if event.Ch != 0 {
+	if engine.aiEnabled {
 		switch event.Ch {
 		case 'p':
 			engine.Pause()
 		case 'i':
-			engine.EnabledAi()
+			engine.DisableAi()
 		}
-	}
-
-	if engine.aiEnabled {
 		return
 	}
 
@@ -111,6 +108,10 @@ func (keyInput *KeyInput) ProcessEvent(event *termbox.Event) {
 			board.MinoRotateLeft()
 		case 'x':
 			board.MinoRotateRight()
+		case 'p':
+			engine.Pause()
+		case 'i':
+			engine.EnabledAi()
 		}
 	}
 

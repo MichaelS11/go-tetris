@@ -47,14 +47,14 @@ func TestBoardStatsFullLines1(t *testing.T) {
 	mino2.x = 6
 	mino2.y = 18
 
-	fullLines, holeDepth, bumpy := board.boardStatsWithMinos(mino1, mino2)
+	fullLines, holes, bumpy := board.boardStatsWithMinos(mino1, mino2)
 	expected := 1
 	if fullLines != expected {
 		t.Error("fullLines expected", expected, "got", fullLines)
 	}
 	expected = 0
-	if holeDepth != expected {
-		t.Error("holeDepth expected", expected, "got", holeDepth)
+	if holes != expected {
+		t.Error("holes expected", expected, "got", holes)
 	}
 	expected = 1
 	if bumpy != expected {
@@ -140,14 +140,14 @@ func TestBoardStatsFullLines2(t *testing.T) {
 	mino2.x = 6
 	mino2.y = 16
 
-	fullLines, holeDepth, bumpy := board.boardStatsWithMinos(mino1, mino2)
+	fullLines, holes, bumpy := board.boardStatsWithMinos(mino1, mino2)
 	expected := 3
 	if fullLines != expected {
 		t.Error("fullLines expected", expected, "got", fullLines)
 	}
 	expected = 0
-	if holeDepth != expected {
-		t.Error("holeDepth expected", expected, "got", holeDepth)
+	if holes != expected {
+		t.Error("holes expected", expected, "got", holes)
 	}
 	expected = 1
 	if bumpy != expected {
@@ -215,14 +215,14 @@ func TestBoardStatsFullLines3(t *testing.T) {
 	mino2.x = 8
 	mino2.y = 16
 
-	fullLines, holeDepth, bumpy := board.boardStatsWithMinos(mino1, mino2)
+	fullLines, holes, bumpy := board.boardStatsWithMinos(mino1, mino2)
 	expected := 1
 	if fullLines != expected {
 		t.Error("fullLines expected", expected, "got", fullLines)
 	}
 	expected = 0
-	if holeDepth != expected {
-		t.Error("holeDepth expected", expected, "got", holeDepth)
+	if holes != expected {
+		t.Error("holes expected", expected, "got", holes)
 	}
 	expected = 9
 	if bumpy != expected {
@@ -254,14 +254,14 @@ func TestBoardStatsBumpy1(t *testing.T) {
 	mino2.x = 0
 	mino2.y = 16
 
-	fullLines, holeDepth, bumpy := board.boardStatsWithMinos(mino1, mino2)
+	fullLines, holes, bumpy := board.boardStatsWithMinos(mino1, mino2)
 	expected := 0
 	if fullLines != expected {
 		t.Error("fullLines expected", expected, "got", fullLines)
 	}
 	expected = 0
-	if holeDepth != expected {
-		t.Error("holeDepth expected", expected, "got", holeDepth)
+	if holes != expected {
+		t.Error("holes expected", expected, "got", holes)
 	}
 	expected = 4
 	if bumpy != expected {
@@ -302,15 +302,14 @@ func TestBoardStatsBumpy2(t *testing.T) {
 	mino2.x = 0
 	mino2.y = 15
 
-	fullLines, holeDepth, bumpy := board.boardStatsWithMinos(mino1, mino2)
+	fullLines, holes, bumpy := board.boardStatsWithMinos(mino1, mino2)
 	expected := 0
 	if fullLines != expected {
 		t.Error("fullLines expected", expected, "got", fullLines)
 	}
-	// 9 + 9 = 18
-	expected = 18
-	if holeDepth != expected {
-		t.Error("holeDepth expected", expected, "got", holeDepth)
+	expected = 4
+	if holes != expected {
+		t.Error("holes expected", expected, "got", holes)
 	}
 	expected = 4
 	if bumpy != expected {
@@ -318,9 +317,9 @@ func TestBoardStatsBumpy2(t *testing.T) {
 	}
 
 	// for debuging
-	// mino1.SetOnBoard()
-	// mino2.SetOnBoard()
-	// board.drawDebugBoard()
+	//	 mino1.SetOnBoard()
+	//	 mino2.SetOnBoard()
+	//	 board.drawDebugBoard()
 }
 
 func TestBoardStatsBumpy3(t *testing.T) {
@@ -351,15 +350,14 @@ func TestBoardStatsBumpy3(t *testing.T) {
 	mino2.x = 2
 	mino2.y = 14
 
-	fullLines, holeDepth, bumpy := board.boardStatsWithMinos(mino1, mino2)
+	fullLines, holes, bumpy := board.boardStatsWithMinos(mino1, mino2)
 	expected := 0
 	if fullLines != expected {
 		t.Error("fullLines expected", expected, "got", fullLines)
 	}
-	// 6 + 7 + 4 + 5 + 6 + 7 = 35
-	expected = 35
-	if holeDepth != expected {
-		t.Error("holeDepth expected", expected, "got", holeDepth)
+	expected = 6
+	if holes != expected {
+		t.Error("holes expected", expected, "got", holes)
 	}
 	expected = 10
 	if bumpy != expected {
@@ -367,9 +365,9 @@ func TestBoardStatsBumpy3(t *testing.T) {
 	}
 
 	// for debuging
-	// mino1.SetOnBoard()
-	// mino2.SetOnBoard()
-	// board.drawDebugBoard()
+	//	mino1.SetOnBoard()
+	//	mino2.SetOnBoard()
+	//	board.drawDebugBoard()
 }
 
 func TestBoardStatsBumpy4(t *testing.T) {
@@ -393,14 +391,14 @@ func TestBoardStatsBumpy4(t *testing.T) {
 	mino2.x = 6
 	mino2.y = 12
 
-	fullLines, holeDepth, bumpy := board.boardStatsWithMinos(mino1, mino2)
+	fullLines, holes, bumpy := board.boardStatsWithMinos(mino1, mino2)
 	expected := 0
 	if fullLines != expected {
 		t.Error("fullLines expected", expected, "got", fullLines)
 	}
 	expected = 0
-	if holeDepth != expected {
-		t.Error("holeDepth expected", expected, "got", holeDepth)
+	if holes != expected {
+		t.Error("holes expected", expected, "got", holes)
 	}
 	expected = 16
 	if bumpy != expected {
@@ -413,7 +411,7 @@ func TestBoardStatsBumpy4(t *testing.T) {
 	// board.drawDebugBoard()
 }
 
-func TestBoardStatsHoleDepth1(t *testing.T) {
+func TestBoardStatsholes1(t *testing.T) {
 	board = NewBoard()
 
 	// minoJ
@@ -434,15 +432,14 @@ func TestBoardStatsHoleDepth1(t *testing.T) {
 	mino2.x = 1
 	mino2.y = 17
 
-	fullLines, holeDepth, bumpy := board.boardStatsWithMinos(mino1, mino2)
+	fullLines, holes, bumpy := board.boardStatsWithMinos(mino1, mino2)
 	expected := 0
 	if fullLines != expected {
 		t.Error("fullLines expected", expected, "got", fullLines)
 	}
-	// 3 + 4 + 3 + 4 = 14
-	expected = 14
-	if holeDepth != expected {
-		t.Error("holeDepth expected", expected, "got", holeDepth)
+	expected = 4
+	if holes != expected {
+		t.Error("holes expected", expected, "got", holes)
 	}
 	expected = 3
 	if bumpy != expected {
@@ -455,7 +452,7 @@ func TestBoardStatsHoleDepth1(t *testing.T) {
 	//	board.drawDebugBoard()
 }
 
-func TestBoardStatsHoleDepth2(t *testing.T) {
+func TestBoardStatsholes2(t *testing.T) {
 	board = NewBoard()
 
 	// minoJ
@@ -476,15 +473,14 @@ func TestBoardStatsHoleDepth2(t *testing.T) {
 	mino2.x = -1
 	mino2.y = 14
 
-	fullLines, holeDepth, bumpy := board.boardStatsWithMinos(mino1, mino2)
+	fullLines, holes, bumpy := board.boardStatsWithMinos(mino1, mino2)
 	expected := 0
 	if fullLines != expected {
 		t.Error("fullLines expected", expected, "got", fullLines)
 	}
-	// 3 + 4 + 6 + 7 = 20
-	expected = 20
-	if holeDepth != expected {
-		t.Error("holeDepth expected", expected, "got", holeDepth)
+	expected = 4
+	if holes != expected {
+		t.Error("holes expected", expected, "got", holes)
 	}
 	expected = 6
 	if bumpy != expected {

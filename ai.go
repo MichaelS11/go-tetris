@@ -81,8 +81,8 @@ func (ai *Ai) getBestQueue() []rune {
 								continue
 							}
 
-							fullLines, holeDepth, bumpy := board.boardStatsWithMinos(mino1, mino2)
-							score := ai.getScoreFromBoardStats(fullLines, holeDepth, bumpy)
+							fullLines, holes, bumpy := board.boardStatsWithMinos(mino1, mino2)
+							score := ai.getScoreFromBoardStats(fullLines, holes, bumpy)
 
 							if slide1 < 3 {
 								slideScore = slide1
@@ -192,7 +192,7 @@ func (mino *Mino) minoOverlap(mino1 *Mino) bool {
 	return false
 }
 
-func (board *Board) boardStatsWithMinos(mino1 *Mino, mino2 *Mino) (fullLines int, holeDepth int, bumpy int) {
+func (board *Board) boardStatsWithMinos(mino1 *Mino, mino2 *Mino) (fullLines int, holes int, bumpy int) {
 	// fullLines
 	fullLinesY := make(map[int]bool, 2)
 	for j := 0; j < boardHeight; j++ {
@@ -209,7 +209,7 @@ func (board *Board) boardStatsWithMinos(mino1 *Mino, mino2 *Mino) (fullLines int
 		}
 	}
 
-	// holeDepth and bumpy
+	// holes and bumpy
 	indexLast := 0
 	for i := 0; i < boardWidth; i++ {
 		index := boardHeight
@@ -238,7 +238,7 @@ func (board *Board) boardStatsWithMinos(mino1 *Mino, mino2 *Mino) (fullLines int
 		index++
 		for j := index; j < boardHeight; j++ {
 			if board.colors[i][j] == blankColor && !mino1.isMinoAtLocation(i, j) && !mino2.isMinoAtLocation(i, j) {
-				holeDepth += 3 + j - index
+				holes++
 			}
 		}
 	}
@@ -260,11 +260,11 @@ func (mino *Mino) isMinoAtLocation(x int, y int) bool {
 	return false
 }
 
-func (ai *Ai) getScoreFromBoardStats(fullLines int, holeDepth int, bumpy int) (score int) {
+func (ai *Ai) getScoreFromBoardStats(fullLines int, holes int, bumpy int) (score int) {
 	if fullLines == 4 {
-		score += 16
+		score += 256
 	}
-	score -= holeDepth
-	score -= bumpy
+	score -= 75 * holes
+	score -= 25 * bumpy
 	return score
 }
