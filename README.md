@@ -1,6 +1,6 @@
 # Go Tetris
 
-Golang Tetris for console window with AI
+Golang Tetris with AI for console window
 
 
 ## Compile
