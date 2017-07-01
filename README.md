@@ -1,6 +1,6 @@
 # Go Tetris
 
-Golang Tetris for Linux shell or Windows Command Prompt 
+Golang Tetris for console window with AI
 
 
 ## Compile
