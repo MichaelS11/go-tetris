@@ -28,6 +28,7 @@ Then run the binary created, tetris or tetris.exe
 | spacebar | hard drop |
 | p | pause |
 | q | quit |
+| i | toggle AI |
 
 
 ## Features include
