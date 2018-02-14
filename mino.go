@@ -2,47 +2,22 @@ package main
 
 import (
 	"math/rand"
-	"time"
+
+	"github.com/nsf/termbox-go"
 )
-
-type MinoType int
-
-const (
-	MinoPreview MinoType = iota
-	MinoCurrent          = iota
-	MinoDrop             = iota
-)
-
-var (
-	bagRand  []int
-	bagIndex int
-)
-
-func init() {
-	rand.Seed(time.Now().UnixNano())
-	bagRand = rand.Perm(7)
-}
-
-type Mino struct {
-	x            int
-	y            int
-	length       int
-	rotation     int
-	minoRotation MinoRotation
-}
 
 func NewMino() *Mino {
-	minoRotation := minoBag[bagRand[bagIndex]]
-	bagIndex++
-	if bagIndex > 6 {
-		bagIndex = 0
-		bagRand = rand.Perm(7)
+	minoRotation := minos.minoBag[minos.bagRand[minos.bagIndex]]
+	minos.bagIndex++
+	if minos.bagIndex > 6 {
+		minos.bagIndex = 0
+		minos.bagRand = rand.Perm(7)
 	}
 	mino := &Mino{
 		minoRotation: minoRotation,
 		length:       len(minoRotation[0]),
 	}
-	mino.x = boardWidth/2 - (mino.length+1)/2
+	mino.x = board.width/2 - (mino.length+1)/2
 	mino.y = -1
 	return mino
 }
@@ -151,4 +126,44 @@ func (mino *Mino) DrawMino(minoType MinoType) {
 			}
 		}
 	}
+}
+
+func (mino *Mino) minoOverlap(mino1 *Mino) bool {
+	minoBlocks := mino.minoRotation[mino.rotation]
+	for i := 0; i < mino.length; i++ {
+		for j := 0; j < mino.length; j++ {
+			if minoBlocks[i][j] != blankColor {
+				if mino1.isMinoAtLocation(mino.x+i, mino.y+j) {
+					return true
+				}
+			}
+		}
+	}
+	return false
+}
+
+func (mino *Mino) isMinoAtLocation(x int, y int) bool {
+	xIndex := x - mino.x
+	yIndex := y - mino.y
+	if xIndex < 0 || xIndex >= mino.length || yIndex < 0 || yIndex >= mino.length {
+		return false
+	}
+
+	minoBlocks := mino.minoRotation[mino.rotation]
+	if minoBlocks[xIndex][yIndex] != blankColor {
+		return true
+	}
+
+	return false
+}
+
+func (mino *Mino) getMinoColorAtLocation(x int, y int) termbox.Attribute {
+	xIndex := x - mino.x
+	yIndex := y - mino.y
+	if xIndex < 0 || xIndex >= mino.length || yIndex < 0 || yIndex >= mino.length {
+		return blankColor
+	}
+
+	minoBlocks := mino.minoRotation[mino.rotation]
+	return minoBlocks[xIndex][yIndex]
 }

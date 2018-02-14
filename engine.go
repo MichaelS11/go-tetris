@@ -1,29 +1,13 @@
 package main
 
 import (
-	"github.com/nsf/termbox-go"
 	"time"
+
+	"github.com/nsf/termbox-go"
 )
 
-type Engine struct {
-	stopped     bool
-	chanStop    chan struct{}
-	keyInput    *KeyInput
-	ranking     *Ranking
-	timer       *time.Timer
-	tickTime    time.Duration
-	paused      bool
-	gameOver    bool
-	score       int
-	level       int
-	deleteLines int
-	ai          *Ai
-	aiEnabled   bool
-	aiTimer     *time.Timer
-}
-
-func NewEngine() *Engine {
-	return &Engine{
+func NewEngine() {
+	engine = &Engine{
 		chanStop: make(chan struct{}, 1),
 		gameOver: true,
 		tickTime: time.Hour,
@@ -42,7 +26,7 @@ func (engine *Engine) Run() {
 	engine.aiTimer.Stop()
 
 	engine.ranking = NewRanking()
-	board = NewBoard()
+	board.Clear()
 	view.RefreshScreen()
 
 	engine.keyInput = NewKeyInput()
@@ -61,9 +45,8 @@ loop:
 			case <-engine.timer.C:
 				engine.tick()
 			case <-engine.aiTimer.C:
-				if engine.ai.ProcessQueue() {
-					engine.aiTimer.Reset(engine.tickTime / 4)
-				}
+				engine.ai.ProcessQueue()
+				engine.aiTimer.Reset(engine.tickTime / 6)
 			case <-engine.chanStop:
 				break loop
 			}
@@ -105,15 +88,19 @@ func (engine *Engine) Pause() {
 func (engine *Engine) UnPause() {
 	engine.timer.Reset(engine.tickTime)
 	if engine.aiEnabled {
-		engine.aiTimer.Reset(engine.tickTime / 4)
+		engine.aiTimer.Reset(engine.tickTime / 6)
 	}
 	engine.paused = false
+}
+
+func (engine *Engine) PreviewBoard() {
+	engine.previewBoard = true
 }
 
 func (engine *Engine) NewGame() {
 	logger.Info("Engine NewGame start")
 
-	board = NewBoard()
+	board.Clear()
 	engine.tickTime = 480 * time.Millisecond
 	engine.score = 0
 	engine.level = 1
@@ -128,6 +115,7 @@ loop:
 		}
 	}
 
+	engine.previewBoard = false
 	engine.gameOver = false
 	if engine.aiEnabled {
 		engine.ai.GetBestQueue()
@@ -153,12 +141,11 @@ func (engine *Engine) ResetTimer(duration time.Duration) {
 	}
 }
 
-func (engine *Engine) ResetAiTimer() {
+func (engine *Engine) AiGetBestQueue() {
 	if !engine.aiEnabled {
 		return
 	}
-	engine.ai.GetBestQueue()
-	engine.aiTimer.Reset(engine.tickTime / 4)
+	go engine.ai.GetBestQueue()
 }
 
 func (engine *Engine) tick() {
@@ -190,8 +177,8 @@ func (engine *Engine) AddDeleteLines(lines int) {
 
 func (engine *Engine) AddScore(add int) {
 	engine.score += add
-	if engine.score > 999999 {
-		engine.score = 999999
+	if engine.score > 9999999 {
+		engine.score = 9999999
 	}
 }
 
@@ -222,13 +209,9 @@ func (engine *Engine) GameOver() {
 	logger.Info("Engine GameOver start")
 
 	engine.Pause()
-
-	view.ShowGameOverAnimation()
-
 	engine.gameOver = true
 
-	engine.ranking.InsertScore(uint64(engine.score))
-	engine.ranking.Save()
+	view.ShowGameOverAnimation()
 
 loop:
 	for {
@@ -239,21 +222,24 @@ loop:
 		}
 	}
 
+	engine.ranking.InsertScore(uint64(engine.score))
+	engine.ranking.Save()
+
 	logger.Info("Engine GameOver end")
 }
 
 func (engine *Engine) EnabledAi() {
 	engine.aiEnabled = true
-	engine.ai.GetBestQueue()
-	engine.aiTimer.Reset(engine.tickTime / 4)
+	go engine.ai.GetBestQueue()
+	engine.aiTimer.Reset(engine.tickTime / 6)
 }
 
 func (engine *Engine) DisableAi() {
+	engine.aiEnabled = false
 	if !engine.aiTimer.Stop() {
 		select {
 		case <-engine.aiTimer.C:
 		default:
 		}
 	}
-	engine.aiEnabled = false
 }

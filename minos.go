@@ -1,16 +1,12 @@
 package main
 
 import (
+	"math/rand"
+
 	"github.com/nsf/termbox-go"
 )
 
-type MinoBlocks [][]termbox.Attribute
-
-type MinoRotation [4]MinoBlocks
-
-var minoBag [7]MinoRotation
-
-func init() {
+func NewMinos() {
 	minoI := MinoBlocks{
 		[]termbox.Attribute{blankColor, termbox.ColorCyan, blankColor, blankColor},
 		[]termbox.Attribute{blankColor, termbox.ColorCyan, blankColor, blankColor},
@@ -50,17 +46,17 @@ func init() {
 	var minoRotationI MinoRotation
 	minoRotationI[0] = minoI
 	for i := 1; i < 4; i++ {
-		minoRotationI[i] = initCloneRotateRight(minoRotationI[i-1])
+		minoRotationI[i] = minosCloneRotateRight(minoRotationI[i-1])
 	}
 	var minoRotationJ MinoRotation
 	minoRotationJ[0] = minoJ
 	for i := 1; i < 4; i++ {
-		minoRotationJ[i] = initCloneRotateRight(minoRotationJ[i-1])
+		minoRotationJ[i] = minosCloneRotateRight(minoRotationJ[i-1])
 	}
 	var minoRotationL MinoRotation
 	minoRotationL[0] = minoL
 	for i := 1; i < 4; i++ {
-		minoRotationL[i] = initCloneRotateRight(minoRotationL[i-1])
+		minoRotationL[i] = minosCloneRotateRight(minoRotationL[i-1])
 	}
 	var minoRotationO MinoRotation
 	minoRotationO[0] = minoO
@@ -70,23 +66,26 @@ func init() {
 	var minoRotationS MinoRotation
 	minoRotationS[0] = minoS
 	for i := 1; i < 4; i++ {
-		minoRotationS[i] = initCloneRotateRight(minoRotationS[i-1])
+		minoRotationS[i] = minosCloneRotateRight(minoRotationS[i-1])
 	}
 	var minoRotationT MinoRotation
 	minoRotationT[0] = minoT
 	for i := 1; i < 4; i++ {
-		minoRotationT[i] = initCloneRotateRight(minoRotationT[i-1])
+		minoRotationT[i] = minosCloneRotateRight(minoRotationT[i-1])
 	}
 	var minoRotationZ MinoRotation
 	minoRotationZ[0] = minoZ
 	for i := 1; i < 4; i++ {
-		minoRotationZ[i] = initCloneRotateRight(minoRotationZ[i-1])
+		minoRotationZ[i] = minosCloneRotateRight(minoRotationZ[i-1])
 	}
 
-	minoBag = [7]MinoRotation{minoRotationI, minoRotationJ, minoRotationL, minoRotationO, minoRotationS, minoRotationT, minoRotationZ}
+	minos = &Minos{
+		minoBag: [7]MinoRotation{minoRotationI, minoRotationJ, minoRotationL, minoRotationO, minoRotationS, minoRotationT, minoRotationZ},
+		bagRand: rand.Perm(7),
+	}
 }
 
-func initCloneRotateRight(minoBlocks MinoBlocks) MinoBlocks {
+func minosCloneRotateRight(minoBlocks MinoBlocks) MinoBlocks {
 	length := len(minoBlocks)
 	newMinoBlocks := make(MinoBlocks, length, length)
 	for i := 0; i < length; i++ {

@@ -15,7 +15,7 @@ go install github.com/MichaelS11/tetris
 Then run the binary created, tetris or tetris.exe
 
 
-## Keys
+## Keys during game
 
 | Key | Action |
 | --- | --- |
@@ -30,6 +30,15 @@ Then run the binary created, tetris or tetris.exe
 | q | quit |
 | i | toggle AI |
 
+## Keys start screen
+
+| Key | Action |
+| --- | --- |
+| &larr; | previous board |
+| &rarr; | next board |
+| spacebar | start game |
+| q | quit |
+
 
 ## Features include
 
@@ -38,6 +47,7 @@ Then run the binary created, tetris or tetris.exe
 - Next piece
 - Ghost piece
 - Top scores
+- Board choices
 
 
 ## Screenshots
@@ -46,4 +56,11 @@ Then run the binary created, tetris or tetris.exe
 
 ![alt text](https://raw.githubusercontent.com/MichaelS11/tetris/master/screenshots/screenshot2.png "Golang Tetris")
 
-![alt text](https://raw.githubusercontent.com/MichaelS11/tetris/master/screenshots/screenshot3.png "Tetris Top Scores")
+![alt text](https://raw.githubusercontent.com/MichaelS11/tetris/master/screenshots/screenshot3.png "Golang Tetris Heart")
+
+![alt text](https://raw.githubusercontent.com/MichaelS11/tetris/master/screenshots/screenshot4.png "Tetris High Scores")
+
+
+## To do
+
+* Improve AI speed (slow on large boards)

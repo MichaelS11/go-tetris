@@ -1,24 +1,12 @@
 package main
 
 import (
-	"github.com/nsf/termbox-go"
-	"gopkg.in/inconshreveable/log15.v2"
+	"math/rand"
 	"os"
 	"path/filepath"
-)
+	"time"
 
-const (
-	boardWidth  = 10
-	boardHeight = 20
-	blankColor  = termbox.ColorBlack
-)
-
-var (
-	baseDir string
-	logger  log15.Logger
-	view    *View
-	engine  *Engine
-	board   *Board
+	"gopkg.in/inconshreveable/log15.v2"
 )
 
 func main() {
@@ -29,8 +17,12 @@ func main() {
 		logger.SetHandler(log15.Must.FileHandler(baseDir+"/tetris.log", log15.LogfmtFormat()))
 	}
 
-	view = NewView()
-	engine = NewEngine()
+	rand.Seed(time.Now().UnixNano())
+
+	NewMinos()
+	NewBoard()
+	NewView()
+	NewEngine()
 
 	engine.Run()
 

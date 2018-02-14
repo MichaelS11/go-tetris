@@ -1,15 +1,10 @@
 package main
 
 import (
-	"github.com/nsf/termbox-go"
 	"runtime"
-)
 
-type KeyInput struct {
-	stopped      bool
-	chanStop     chan struct{}
-	chanKeyInput chan *termbox.Event
-}
+	"github.com/nsf/termbox-go"
+)
 
 func NewKeyInput() *KeyInput {
 	return &KeyInput{
@@ -29,16 +24,11 @@ loop:
 		default:
 		}
 		event := termbox.PollEvent()
-		if event.Type == termbox.EventKey {
+		if event.Type == termbox.EventKey && len(keyInput.chanKeyInput) < 8 {
 			select {
 			case <-keyInput.chanStop:
 				break loop
-			default:
-				select {
-				case keyInput.chanKeyInput <- &event:
-				case <-keyInput.chanStop:
-					break loop
-				}
+			case keyInput.chanKeyInput <- &event:
 			}
 		}
 	}
@@ -47,7 +37,6 @@ loop:
 }
 
 func (keyInput *KeyInput) ProcessEvent(event *termbox.Event) {
-
 	if event.Key == termbox.KeyCtrlI {
 		// ctrl i to log stack trace
 		buffer := make([]byte, 1<<16)
@@ -66,8 +55,15 @@ func (keyInput *KeyInput) ProcessEvent(event *termbox.Event) {
 	}
 
 	if engine.gameOver {
-		if event.Key == termbox.KeySpace {
-			engine.NewGame()
+		if event.Ch == 0 {
+			switch event.Key {
+			case termbox.KeySpace:
+				engine.NewGame()
+			case termbox.KeyArrowLeft:
+				board.PreviousBoard()
+			case termbox.KeyArrowRight:
+				board.NextBoard()
+			}
 		}
 		return
 	}

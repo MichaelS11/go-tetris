@@ -8,21 +8,13 @@ import (
 	"strings"
 )
 
-const (
-	rankingFileName = "/tetris.db"
-)
-
-type Ranking struct {
-	scores []uint64
-}
-
 func NewRanking() *Ranking {
 	ranking := &Ranking{
-		scores: make([]uint64, 10),
+		scores: make([]uint64, 9),
 	}
 
 	if _, err := os.Stat(baseDir + rankingFileName); os.IsNotExist(err) {
-		for i := 0; i < 10; i++ {
+		for i := 0; i < 9; i++ {
 			ranking.scores[i] = 0
 		}
 		return ranking
@@ -35,6 +27,9 @@ func NewRanking() *Ranking {
 
 	scoreStrings := strings.Split(string(scoreBytes), ",")
 	for index, scoreString := range scoreStrings {
+		if index > 8 {
+			break
+		}
 		score, err := strconv.ParseUint(scoreString, 10, 64)
 		if err != nil {
 			logger.Error("NewRanking ParseUint", "error", err.Error())
@@ -49,7 +44,7 @@ func NewRanking() *Ranking {
 func (ranking *Ranking) Save() {
 	var buffer bytes.Buffer
 
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 9; i++ {
 		if i != 0 {
 			buffer.WriteRune(',')
 		}
