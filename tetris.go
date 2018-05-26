@@ -10,7 +10,6 @@ import (
 )
 
 func main() {
-
 	baseDir, _ = filepath.Abs(filepath.Dir(os.Args[0]))
 	logger = log15.New()
 	if baseDir != "" {

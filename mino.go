@@ -88,7 +88,7 @@ func (mino *Mino) ValidLocation(mustBeOnBoard bool) bool {
 	for i := 0; i < mino.length; i++ {
 		for j := 0; j < mino.length; j++ {
 			if minoBlocks[i][j] != blankColor {
-				if !ValidBlockLocation(mino.x+i, mino.y+j, mustBeOnBoard) {
+				if !board.ValidBlockLocation(mino.x+i, mino.y+j, mustBeOnBoard) {
 					return false
 				}
 			}

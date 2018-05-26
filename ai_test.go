@@ -84,6 +84,16 @@ func TestAI(t *testing.T) {
 			testMinoStruct{minoRotation: minos.minoBag[6], x: 3, y: 18}, // minoZ
 			testMinoStruct{minoRotation: minos.minoBag[6], x: 6, y: 18}, // minoZ
 		}, fullLines: 0, holes: 3, bumpy: 6},
+		{info: "holes 4x minoT 2x minoI 2x minoO", minos: []testMinoStruct{
+			testMinoStruct{minoRotation: minos.minoBag[5], x: 0, y: 18}, // minoT
+			testMinoStruct{minoRotation: minos.minoBag[5], x: 7, y: 18}, // minoT
+			testMinoStruct{minoRotation: minos.minoBag[3], x: 0, y: 16}, // minoO
+			testMinoStruct{minoRotation: minos.minoBag[5], x: 3, y: 16}, // minoT
+			testMinoStruct{minoRotation: minos.minoBag[5], x: 7, y: 16}, // minoT
+			testMinoStruct{minoRotation: minos.minoBag[3], x: 0, y: 14}, // minoO
+			testMinoStruct{minoRotation: minos.minoBag[0], x: 2, y: 14}, // minoI
+			testMinoStruct{minoRotation: minos.minoBag[0], x: 6, y: 14}, // minoI
+		}, fullLines: 1, holes: 9, bumpy: 16},
 		{info: "bumpy 2x minoT - 1", minos: []testMinoStruct{
 			testMinoStruct{minoRotation: minos.minoBag[5], x: 0, y: 18}, // minoT
 			testMinoStruct{minoRotation: minos.minoBag[5], x: 5, y: 18}, // minoT
@@ -194,6 +204,21 @@ func TestBigBoardAI(t *testing.T) {
 			testMinoStruct{minoRotation: minos.minoBag[6], x: 12, y: 18}, // minoZ
 			testMinoStruct{minoRotation: minos.minoBag[6], x: 16, y: 18}, // minoZ
 		}, fullLines: 0, holes: 5, bumpy: 18},
+		{info: "holes 6x minoT 2x minoO 5x minoI", minos: []testMinoStruct{
+			testMinoStruct{minoRotation: minos.minoBag[5], x: 0, y: 18},  // minoT
+			testMinoStruct{minoRotation: minos.minoBag[5], x: 6, y: 18},  // minoT
+			testMinoStruct{minoRotation: minos.minoBag[5], x: 12, y: 18}, // minoT
+			testMinoStruct{minoRotation: minos.minoBag[3], x: 18, y: 18}, // minoO
+			testMinoStruct{minoRotation: minos.minoBag[5], x: 3, y: 16},  // minoT
+			testMinoStruct{minoRotation: minos.minoBag[5], x: 9, y: 16},  // minoT
+			testMinoStruct{minoRotation: minos.minoBag[5], x: 15, y: 16}, // minoT
+			testMinoStruct{minoRotation: minos.minoBag[3], x: 18, y: 16}, // minoO
+			testMinoStruct{minoRotation: minos.minoBag[0], x: 0, y: 14},  // minoI
+			testMinoStruct{minoRotation: minos.minoBag[0], x: 4, y: 14},  // minoI
+			testMinoStruct{minoRotation: minos.minoBag[0], x: 8, y: 14},  // minoI
+			testMinoStruct{minoRotation: minos.minoBag[0], x: 12, y: 14}, // minoI
+			testMinoStruct{minoRotation: minos.minoBag[0], x: 16, y: 14}, // minoI
+		}, fullLines: 1, holes: 18, bumpy: 23},
 		{info: "bumpy 4x minoJ - 1", minos: []testMinoStruct{
 			testMinoStruct{minoRotation: minos.minoBag[1], x: 0, y: 18},  // minoJ
 			testMinoStruct{minoRotation: minos.minoBag[1], x: 5, y: 18},  // minoJ

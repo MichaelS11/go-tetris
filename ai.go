@@ -1,5 +1,9 @@
 package main
 
+import (
+	"github.com/nsf/termbox-go"
+)
+
 func NewAi() *Ai {
 	ai := Ai{}
 	queue := make([]rune, 1)
@@ -38,10 +42,25 @@ func (ai *Ai) GetBestQueue() {
 	bestScore := -9999999
 	bestQueue := make([]rune, 0, 0)
 	currentMino := *board.currentMino
+	rotations1 := 5
+	rotations2 := 5
+
+	switch currentMino.minoRotation[0][1][1] {
+	case termbox.ColorCyan, termbox.ColorGreen, termbox.ColorRed:
+		rotations1 = 2
+	case termbox.ColorYellow:
+		rotations1 = 1
+	}
+	switch board.previewMino.minoRotation[0][1][1] {
+	case termbox.ColorCyan, termbox.ColorGreen, termbox.ColorRed:
+		rotations2 = 2
+	case termbox.ColorYellow:
+		rotations2 = 1
+	}
 
 	for slide1 := 0; slide1 < 5; slide1++ {
 		for move1 := board.width; move1 >= 0; move1-- {
-			for rotate1 := 0; rotate1 < 5; rotate1++ {
+			for rotate1 := 0; rotate1 < rotations1; rotate1++ {
 
 				queue, mino1 := board.getMovesforMino(rotate1, move1, slide1, &currentMino, nil)
 				if mino1 == nil {
@@ -50,7 +69,7 @@ func (ai *Ai) GetBestQueue() {
 
 				for slide2 := 0; slide2 < 5; slide2++ {
 					for move2 := board.width; move2 >= 0; move2-- {
-						for rotate2 := 0; rotate2 < 5; rotate2++ {
+						for rotate2 := 0; rotate2 < rotations2; rotate2++ {
 
 							_, mino2 := board.getMovesforMino(rotate2, move2, slide2, board.previewMino, mino1)
 							if mino2 == nil {
@@ -158,17 +177,16 @@ func (board *Board) getMovesforMino(rotate int, move int, slide int, mino1 *Mino
 
 func (board *Board) boardStatsWithMinos(mino1 *Mino, mino2 *Mino) (fullLines int, holes int, bumpy int) {
 	// fullLines
-	fullLinesY := make(map[int]bool, 2)
+	fullLinesY := make([]bool, board.height)
 	for j := 0; j < board.height; j++ {
-		isFullLine := true
+		fullLinesY[j] = true
 		for i := 0; i < board.width; i++ {
 			if board.colors[i][j] == blankColor && !mino1.isMinoAtLocation(i, j) && !mino2.isMinoAtLocation(i, j) {
-				isFullLine = false
+				fullLinesY[j] = false
 				break
 			}
 		}
-		if isFullLine {
-			fullLinesY[j] = true
+		if fullLinesY[j] {
 			fullLines++
 		}
 	}
@@ -179,7 +197,7 @@ func (board *Board) boardStatsWithMinos(mino1 *Mino, mino2 *Mino) (fullLines int
 		index := board.height
 		indexOffset := 0
 		for j := 0; j < board.height; j++ {
-			if _, found := fullLinesY[j]; found {
+			if fullLinesY[j] {
 				indexOffset++
 			} else {
 				if board.colors[i][j] != blankColor || mino1.isMinoAtLocation(i, j) || mino2.isMinoAtLocation(i, j) {
@@ -209,11 +227,12 @@ func (board *Board) boardStatsWithMinos(mino1 *Mino, mino2 *Mino) (fullLines int
 	return
 }
 
-func (ai *Ai) getScoreFromBoardStats(fullLines int, holes int, bumpy int) (score int) {
+func (ai *Ai) getScoreFromBoardStats(fullLines int, holes int, bumpy int) int {
+	score := 0
 	if fullLines == 4 {
 		score += 512
 	}
-	score -= 75 * holes
-	score -= 25 * bumpy
+	score -= 80 * holes
+	score -= 20 * bumpy
 	return score
 }

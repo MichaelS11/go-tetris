@@ -233,7 +233,7 @@ func (board *Board) SetColor(x int, y int, color termbox.Attribute, rotation int
 	board.rotation[x][y] = rotation
 }
 
-func ValidBlockLocation(x int, y int, mustBeOnBoard bool) bool {
+func (board *Board) ValidBlockLocation(x int, y int, mustBeOnBoard bool) bool {
 	if x < 0 || x >= board.width || y >= board.height {
 		return false
 	}
