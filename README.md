@@ -2,18 +2,16 @@
 
 Golang Tetris for console window with optional AI
 
-
 ## Compile
 
-go get github.com/MichaelS11/tetris
-
-go install github.com/MichaelS11/tetris
-
+```
+go get github.com/MichaelS11/go-tetris
+go install github.com/MichaelS11/go-tetris
+```
 
 ## Play
 
 Then run the binary created, tetris or tetris.exe
-
 
 ## Keys during game
 
@@ -39,7 +37,6 @@ Then run the binary created, tetris or tetris.exe
 | spacebar | start game |
 | q | quit |
 
-
 ## Features include
 
 - AI (use i key to toggle)
@@ -48,7 +45,6 @@ Then run the binary created, tetris or tetris.exe
 - Ghost piece
 - Top scores
 - Board choices
-
 
 ## Screenshots
 
@@ -59,7 +55,6 @@ Then run the binary created, tetris or tetris.exe
 ![alt text](https://raw.githubusercontent.com/MichaelS11/tetris/master/screenshots/screenshot3.png "Golang Tetris Heart")
 
 ![alt text](https://raw.githubusercontent.com/MichaelS11/tetris/master/screenshots/screenshot4.png "Tetris High Scores")
-
 
 ## To do
 
