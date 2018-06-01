@@ -16,7 +16,7 @@ func NewEngine() {
 }
 
 func (engine *Engine) Run() {
-	logger.Info("Engine Run start")
+	logger.Println("Engine Run start")
 
 	var event *termbox.Event
 
@@ -53,11 +53,11 @@ loop:
 		}
 	}
 
-	logger.Info("Engine Run end")
+	logger.Println("Engine Run end")
 }
 
 func (engine *Engine) Stop() {
-	logger.Info("Engine Stop start")
+	logger.Println("Engine Stop start")
 
 	if !engine.stopped {
 		engine.stopped = true
@@ -66,7 +66,7 @@ func (engine *Engine) Stop() {
 	engine.timer.Stop()
 	engine.aiTimer.Stop()
 
-	logger.Info("Engine Stop end")
+	logger.Println("Engine Stop end")
 }
 
 func (engine *Engine) Pause() {
@@ -98,7 +98,7 @@ func (engine *Engine) PreviewBoard() {
 }
 
 func (engine *Engine) NewGame() {
-	logger.Info("Engine NewGame start")
+	logger.Println("Engine NewGame start")
 
 	board.Clear()
 	engine.tickTime = 480 * time.Millisecond
@@ -122,7 +122,7 @@ loop:
 	}
 	engine.UnPause()
 
-	logger.Info("Engine NewGame end")
+	logger.Println("Engine NewGame end")
 }
 
 func (engine *Engine) ResetTimer(duration time.Duration) {
@@ -206,7 +206,7 @@ func (engine *Engine) LevelUp() {
 }
 
 func (engine *Engine) GameOver() {
-	logger.Info("Engine GameOver start")
+	logger.Println("Engine GameOver start")
 
 	engine.Pause()
 	engine.gameOver = true
@@ -225,7 +225,7 @@ loop:
 	engine.ranking.InsertScore(uint64(engine.score))
 	engine.ranking.Save()
 
-	logger.Info("Engine GameOver end")
+	logger.Println("Engine GameOver end")
 }
 
 func (engine *Engine) EnabledAi() {

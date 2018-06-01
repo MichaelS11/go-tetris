@@ -22,7 +22,7 @@ func NewRanking() *Ranking {
 
 	scoreBytes, err := ioutil.ReadFile(baseDir + rankingFileName)
 	if err != nil {
-		logger.Error("NewRanking ReadFile", "error", err.Error())
+		logger.Println("NewRanking ReadFile error:", err)
 	}
 
 	scoreStrings := strings.Split(string(scoreBytes), ",")
@@ -32,7 +32,7 @@ func NewRanking() *Ranking {
 		}
 		score, err := strconv.ParseUint(scoreString, 10, 64)
 		if err != nil {
-			logger.Error("NewRanking ParseUint", "error", err.Error())
+			logger.Println("NewRanking ParseUint error:", err)
 			score = 0
 		}
 		ranking.scores[index] = score

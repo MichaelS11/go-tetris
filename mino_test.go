@@ -1,11 +1,10 @@
 package main
 
 import (
+	"log"
 	"math/rand"
 	"os"
 	"testing"
-
-	"gopkg.in/inconshreveable/log15.v2"
 )
 
 type testMinoStruct struct {
@@ -21,8 +20,7 @@ func TestMain(m *testing.M) {
 }
 
 func setupForTesting() {
-	logger = log15.New()
-	logger.SetHandler(log15.StreamHandler(os.Stdout, log15.LogfmtFormat()))
+	logger = log.New(os.Stdout, "", log.Ldate|log.Ltime|log.LUTC|log.Llongfile)
 
 	rand.Seed(1)
 

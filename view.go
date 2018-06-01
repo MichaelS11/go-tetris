@@ -19,11 +19,11 @@ func NewView() {
 }
 
 func (view *View) Stop() {
-	logger.Info("View Stop start")
+	logger.Println("View Stop start")
 
 	termbox.Close()
 
-	logger.Info("View Stop end")
+	logger.Println("View Stop end")
 }
 
 func (view *View) RefreshScreen() {
@@ -217,7 +217,7 @@ func (view *View) ShowDeleteAnimation(lines []int) {
 }
 
 func (view *View) ShowGameOverAnimation() {
-	logger.Info("View ShowGameOverAnimation start")
+	logger.Println("View ShowGameOverAnimation start")
 
 	switch rand.Intn(3) {
 	case 0:
@@ -280,7 +280,7 @@ func (view *View) ShowGameOverAnimation() {
 		}
 	}
 
-	logger.Info("View ShowGameOverAnimation end")
+	logger.Println("View ShowGameOverAnimation end")
 }
 
 func (view *View) colorizeLine(y int, color termbox.Attribute) {

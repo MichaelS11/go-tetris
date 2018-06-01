@@ -1,10 +1,10 @@
 package main
 
 import (
+	"log"
 	"time"
 
 	"github.com/nsf/termbox-go"
-	"gopkg.in/inconshreveable/log15.v2"
 )
 
 const (
@@ -95,7 +95,7 @@ var (
 	boards []Boards
 
 	baseDir string
-	logger  log15.Logger
+	logger  *log.Logger
 	minos   *Minos
 	board   *Board
 	view    *View

@@ -14,7 +14,7 @@ func NewKeyInput() *KeyInput {
 }
 
 func (keyInput *KeyInput) Run() {
-	logger.Info("KeyInput Run start")
+	logger.Println("KeyInput Run start")
 
 loop:
 	for {
@@ -33,15 +33,16 @@ loop:
 		}
 	}
 
-	logger.Info("KeyInput Run end")
+	logger.Println("KeyInput Run end")
 }
 
 func (keyInput *KeyInput) ProcessEvent(event *termbox.Event) {
 	if event.Key == termbox.KeyCtrlI {
-		// ctrl i to log stack trace
+		// Ctrl l (lower case L) to log stack trace
 		buffer := make([]byte, 1<<16)
 		length := runtime.Stack(buffer, true)
-		logger.Debug("Stack trace", "buffer", string(buffer[:length]))
+		logger.Println("Stack trace")
+		logger.Println(string(buffer[:length]))
 		return
 	}
 
