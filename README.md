@@ -11,7 +11,7 @@ go install github.com/MichaelS11/go-tetris
 
 ## Play
 
-Then run the binary created, tetris or tetris.exe
+Then run the binary created, go-tetris or go-tetris.exe
 
 ## Keys during game
 
