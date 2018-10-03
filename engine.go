@@ -6,6 +6,7 @@ import (
 	"github.com/nsf/termbox-go"
 )
 
+// NewEngine creates new engine
 func NewEngine() {
 	engine = &Engine{
 		chanStop: make(chan struct{}, 1),
@@ -15,6 +16,7 @@ func NewEngine() {
 	}
 }
 
+// Run runs the engine
 func (engine *Engine) Run() {
 	logger.Println("Engine Run start")
 
@@ -56,6 +58,7 @@ loop:
 	logger.Println("Engine Run end")
 }
 
+// Stop stops the engine
 func (engine *Engine) Stop() {
 	logger.Println("Engine Stop start")
 
@@ -69,6 +72,7 @@ func (engine *Engine) Stop() {
 	logger.Println("Engine Stop end")
 }
 
+// Pause pauses the engine
 func (engine *Engine) Pause() {
 	if !engine.timer.Stop() {
 		select {
@@ -85,6 +89,7 @@ func (engine *Engine) Pause() {
 	engine.paused = true
 }
 
+// UnPause resumes running the engine
 func (engine *Engine) UnPause() {
 	engine.timer.Reset(engine.tickTime)
 	if engine.aiEnabled {
@@ -93,10 +98,12 @@ func (engine *Engine) UnPause() {
 	engine.paused = false
 }
 
+// PreviewBoard sets previewBoard to true
 func (engine *Engine) PreviewBoard() {
 	engine.previewBoard = true
 }
 
+// NewGame resets board and starts a new game
 func (engine *Engine) NewGame() {
 	logger.Println("Engine NewGame start")
 
@@ -125,6 +132,7 @@ loop:
 	logger.Println("Engine NewGame end")
 }
 
+// ResetTimer resets the time for lock delay or tick time
 func (engine *Engine) ResetTimer(duration time.Duration) {
 	if !engine.timer.Stop() {
 		select {
@@ -141,6 +149,7 @@ func (engine *Engine) ResetTimer(duration time.Duration) {
 	}
 }
 
+// AiGetBestQueue calls AI to get best queue
 func (engine *Engine) AiGetBestQueue() {
 	if !engine.aiEnabled {
 		return
@@ -148,11 +157,13 @@ func (engine *Engine) AiGetBestQueue() {
 	go engine.ai.GetBestQueue()
 }
 
+// tick move mino down and refreshes screen
 func (engine *Engine) tick() {
 	board.MinoMoveDown()
 	view.RefreshScreen()
 }
 
+// AddDeleteLines adds deleted lines to score
 func (engine *Engine) AddDeleteLines(lines int) {
 	engine.deleteLines += lines
 	if engine.deleteLines > 999999 {
@@ -175,6 +186,7 @@ func (engine *Engine) AddDeleteLines(lines int) {
 	}
 }
 
+// AddScore adds to score
 func (engine *Engine) AddScore(add int) {
 	engine.score += add
 	if engine.score > 9999999 {
@@ -182,6 +194,7 @@ func (engine *Engine) AddScore(add int) {
 	}
 }
 
+// LevelUp goes up a level
 func (engine *Engine) LevelUp() {
 	if engine.level >= 30 {
 		return
@@ -205,6 +218,7 @@ func (engine *Engine) LevelUp() {
 	}
 }
 
+// GameOver pauses engine and sets to game over
 func (engine *Engine) GameOver() {
 	logger.Println("Engine GameOver start")
 
@@ -228,12 +242,14 @@ loop:
 	logger.Println("Engine GameOver end")
 }
 
+// EnabledAi enables the AI
 func (engine *Engine) EnabledAi() {
 	engine.aiEnabled = true
 	go engine.ai.GetBestQueue()
 	engine.aiTimer.Reset(engine.tickTime / 6)
 }
 
+// DisableAi disables the AI
 func (engine *Engine) DisableAi() {
 	engine.aiEnabled = false
 	if !engine.aiTimer.Stop() {

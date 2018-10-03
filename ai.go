@@ -4,6 +4,7 @@ import (
 	"github.com/nsf/termbox-go"
 )
 
+// NewAi creates a new AI
 func NewAi() *Ai {
 	ai := Ai{}
 	queue := make([]rune, 1)
@@ -12,6 +13,7 @@ func NewAi() *Ai {
 	return &ai
 }
 
+// ProcessQueue checks AI queue and process key moments
 func (ai *Ai) ProcessQueue() {
 	if ai.newQueue != nil {
 		ai.queue = ai.newQueue
@@ -38,6 +40,7 @@ func (ai *Ai) ProcessQueue() {
 	view.RefreshScreen()
 }
 
+// GetBestQueue gets the best queue
 func (ai *Ai) GetBestQueue() {
 	bestScore := -9999999
 	bestQueue := make([]rune, 0, 0)

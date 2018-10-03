@@ -7,11 +7,13 @@ import (
 	"github.com/nsf/termbox-go"
 )
 
+// NewBoard creates a new clear board
 func NewBoard() {
 	board = &Board{}
 	board.Clear()
 }
 
+// Clear clears the board
 func (board *Board) Clear() {
 	board.width = len(boards[board.boardsIndex].colors)
 	board.height = len(boards[board.boardsIndex].colors[0])
@@ -29,6 +31,7 @@ func (board *Board) Clear() {
 	board.currentMino = NewMino()
 }
 
+// PreviousBoard switchs to previous board
 func (board *Board) PreviousBoard() {
 	board.boardsIndex--
 	if board.boardsIndex < 0 {
@@ -38,6 +41,7 @@ func (board *Board) PreviousBoard() {
 	board.Clear()
 }
 
+// NextBoard switchs to next board
 func (board *Board) NextBoard() {
 	board.boardsIndex++
 	if board.boardsIndex == len(boards) {
@@ -47,6 +51,7 @@ func (board *Board) NextBoard() {
 	board.Clear()
 }
 
+// MinoMoveLeft moves mino left
 func (board *Board) MinoMoveLeft() {
 	board.dropDistance = 0
 	mino := board.currentMino.CloneMoveLeft()
@@ -56,6 +61,7 @@ func (board *Board) MinoMoveLeft() {
 	}
 }
 
+// MinoMoveRight moves mino right
 func (board *Board) MinoMoveRight() {
 	board.dropDistance = 0
 	mino := board.currentMino.CloneMoveRight()
@@ -65,6 +71,7 @@ func (board *Board) MinoMoveRight() {
 	}
 }
 
+// MinoRotateRight rotates mino right
 func (board *Board) MinoRotateRight() {
 	board.dropDistance = 0
 	mino := board.currentMino.CloneRotateRight()
@@ -88,6 +95,7 @@ func (board *Board) MinoRotateRight() {
 	}
 }
 
+// MinoRotateLeft rotates mino right
 func (board *Board) MinoRotateLeft() {
 	board.dropDistance = 0
 	mino := board.currentMino.CloneRotateLeft()
@@ -111,6 +119,7 @@ func (board *Board) MinoRotateLeft() {
 	}
 }
 
+// MinoMoveDown moves mino down
 func (board *Board) MinoMoveDown() {
 	mino := board.currentMino.CloneMoveDown()
 	if mino.ValidLocation(false) {
@@ -128,6 +137,7 @@ func (board *Board) MinoMoveDown() {
 	board.nextMino()
 }
 
+// MinoDrop dropps mino
 func (board *Board) MinoDrop() {
 	board.dropDistance = 0
 	mino := board.currentMino.CloneMoveDown()
@@ -150,6 +160,7 @@ func (board *Board) MinoDrop() {
 	}
 }
 
+// StartLockDelayIfBottom if at bottom, starts lock delay
 func (board *Board) StartLockDelayIfBottom() bool {
 	mino := board.currentMino.CloneMoveDown()
 	if mino.ValidLocation(false) {
@@ -159,6 +170,7 @@ func (board *Board) StartLockDelayIfBottom() bool {
 	return true
 }
 
+// nextMino gets next mino
 func (board *Board) nextMino() {
 	engine.AddScore(board.dropDistance)
 
@@ -180,6 +192,7 @@ func (board *Board) nextMino() {
 	engine.ResetTimer(0)
 }
 
+// deleteCheck checks if there are any lines on the board that can be deleted
 func (board *Board) deleteCheck() {
 	lines := board.fullLines()
 	if len(lines) < 1 {
@@ -194,6 +207,7 @@ func (board *Board) deleteCheck() {
 	engine.AddDeleteLines(len(lines))
 }
 
+// fullLines returns the line numbers that have full lines
 func (board *Board) fullLines() []int {
 	fullLines := make([]int, 0, 1)
 	for j := 0; j < board.height; j++ {
@@ -204,6 +218,7 @@ func (board *Board) fullLines() []int {
 	return fullLines
 }
 
+// isFullLine checks if line is full
 func (board *Board) isFullLine(j int) bool {
 	for i := 0; i < board.width; i++ {
 		if board.colors[i][j] == blankColor {
@@ -213,6 +228,7 @@ func (board *Board) isFullLine(j int) bool {
 	return true
 }
 
+// deleteLine deletes the line
 func (board *Board) deleteLine(line int) {
 	for i := 0; i < board.width; i++ {
 		board.colors[i][line] = blankColor
@@ -228,11 +244,13 @@ func (board *Board) deleteLine(line int) {
 	}
 }
 
+// SetColor sets the color and rotation of board location
 func (board *Board) SetColor(x int, y int, color termbox.Attribute, rotation int) {
 	board.colors[x][y] = color
 	board.rotation[x][y] = rotation
 }
 
+// ValidBlockLocation checks if block location is vaild
 func (board *Board) ValidBlockLocation(x int, y int, mustBeOnBoard bool) bool {
 	if x < 0 || x >= board.width || y >= board.height {
 		return false
@@ -254,10 +272,12 @@ func (board *Board) ValidBlockLocation(x int, y int, mustBeOnBoard bool) bool {
 	return true
 }
 
+// ValidDisplayLocation checks if vaild display location
 func ValidDisplayLocation(x int, y int) bool {
 	return x >= 0 && x < board.width && y >= 0 && y < board.height
 }
 
+// DrawBoard draws the board with help from view
 func (board *Board) DrawBoard() {
 	for i := 0; i < board.width; i++ {
 		for j := 0; j < board.height; j++ {
@@ -268,14 +288,17 @@ func (board *Board) DrawBoard() {
 	}
 }
 
+// DrawPreviewMino draws the preview mino
 func (board *Board) DrawPreviewMino() {
 	board.previewMino.DrawMino(MinoPreview)
 }
 
+// DrawCurrentMino draws the current mino
 func (board *Board) DrawCurrentMino() {
 	board.currentMino.DrawMino(MinoCurrent)
 }
 
+// DrawDropMino draws the drop mino
 func (board *Board) DrawDropMino() {
 	mino := board.currentMino.CloneMoveDown()
 	if !mino.ValidLocation(false) {
@@ -288,7 +311,7 @@ func (board *Board) DrawDropMino() {
 	mino.DrawMino(MinoDrop)
 }
 
-// for debuging
+// printDebugBoard is for printing board in text for debuging
 func (board *Board) printDebugBoard() {
 	for j := 0; j < board.height; j++ {
 		for i := 0; i < board.width; i++ {
@@ -317,7 +340,7 @@ func (board *Board) printDebugBoard() {
 	}
 }
 
-// for debuging
+// getDebugBoard returns board as string for debuging and testing
 func (board *Board) getDebugBoard() []string {
 	lines := make([]string, board.height)
 	for j := 0; j < board.height; j++ {
@@ -347,7 +370,7 @@ func (board *Board) getDebugBoard() []string {
 	return lines
 }
 
-// for debuging
+// getDebugBoardWithMino returns board with mino placed on it
 func (board *Board) getDebugBoardWithMino(mino *Mino) []string {
 	lines := make([]string, board.height)
 	for j := 0; j < board.height; j++ {

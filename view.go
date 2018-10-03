@@ -8,6 +8,7 @@ import (
 	"github.com/nsf/termbox-go"
 )
 
+// NewView creates a new view
 func NewView() {
 	err := termbox.Init()
 	if err != nil {
@@ -18,6 +19,7 @@ func NewView() {
 	view = &View{}
 }
 
+// Stop stops the view
 func (view *View) Stop() {
 	logger.Println("View Stop start")
 
@@ -26,6 +28,7 @@ func (view *View) Stop() {
 	logger.Println("View Stop end")
 }
 
+// RefreshScreen refreshs the updated view to the screen
 func (view *View) RefreshScreen() {
 	termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
 
@@ -50,6 +53,7 @@ func (view *View) RefreshScreen() {
 	termbox.Flush()
 }
 
+// drawBackground draws the background
 func (view *View) drawBackground() {
 	// playing board
 	xOffset := boardXOffset
@@ -85,6 +89,7 @@ func (view *View) drawBackground() {
 
 }
 
+// drawTexts draws the text
 func (view *View) drawTexts() {
 	xOffset := boardXOffset + board.width*2 + 8
 	yOffset := boardYOffset + 7
@@ -124,6 +129,7 @@ func (view *View) drawTexts() {
 	view.drawText(xOffset, yOffset, "q    - quit", termbox.ColorWhite, termbox.ColorBlack)
 }
 
+// DrawPreviewMinoBlock draws the preview mino
 func (view *View) DrawPreviewMinoBlock(x int, y int, color termbox.Attribute, rotation int, length int) {
 	var char1 rune
 	var char2 rune
@@ -139,6 +145,7 @@ func (view *View) DrawPreviewMinoBlock(x int, y int, color termbox.Attribute, ro
 	termbox.SetCell(xOffset+1, y+boardYOffset+2, char2, color, color^termbox.AttrBold)
 }
 
+// DrawBlock draws a block
 func (view *View) DrawBlock(x int, y int, color termbox.Attribute, rotation int) {
 	var char1 rune
 	var char2 rune
@@ -159,11 +166,13 @@ func (view *View) DrawBlock(x int, y int, color termbox.Attribute, rotation int)
 	}
 }
 
+// drawPaused draws Paused
 func (view *View) drawPaused() {
 	yOffset := (board.height+1)/2 + boardYOffset
 	view.drawTextCenter(yOffset, "Paused", termbox.ColorWhite, termbox.ColorBlack)
 }
 
+// drawGameOver draws GAME OVER
 func (view *View) drawGameOver() {
 	yOffset := boardYOffset + 2
 	view.drawTextCenter(yOffset, " GAME OVER", termbox.ColorWhite, termbox.ColorBlack)
@@ -181,6 +190,7 @@ func (view *View) drawGameOver() {
 	view.drawTextCenter(yOffset, "→next board", termbox.ColorWhite, termbox.ColorBlack)
 }
 
+// drawRankingScores draws the ranking scores
 func (view *View) drawRankingScores() {
 	yOffset := boardYOffset + 10
 	for index, line := range engine.ranking.scores {
@@ -188,12 +198,14 @@ func (view *View) drawRankingScores() {
 	}
 }
 
+// drawText draws the provided text
 func (view *View) drawText(x int, y int, text string, fg termbox.Attribute, bg termbox.Attribute) {
 	for index, char := range text {
 		termbox.SetCell(x+index, y, rune(char), fg, bg)
 	}
 }
 
+// drawTextCenter draws text in the center of the board
 func (view *View) drawTextCenter(y int, text string, fg termbox.Attribute, bg termbox.Attribute) {
 	xOffset := board.width - (len(text)+1)/2 + boardXOffset + 2
 	for index, char := range text {
@@ -201,6 +213,7 @@ func (view *View) drawTextCenter(y int, text string, fg termbox.Attribute, bg te
 	}
 }
 
+// ShowDeleteAnimation draws the delete animation
 func (view *View) ShowDeleteAnimation(lines []int) {
 	view.RefreshScreen()
 
@@ -216,6 +229,7 @@ func (view *View) ShowDeleteAnimation(lines []int) {
 	}
 }
 
+// ShowGameOverAnimation draws one randomily picked gave over animation
 func (view *View) ShowGameOverAnimation() {
 	logger.Println("View ShowGameOverAnimation start")
 
@@ -283,6 +297,7 @@ func (view *View) ShowGameOverAnimation() {
 	logger.Println("View ShowGameOverAnimation end")
 }
 
+// colorizeLine changes the color of a line
 func (view *View) colorizeLine(y int, color termbox.Attribute) {
 	for x := 0; x < board.width; x++ {
 		termbox.SetCell(x*2+boardXOffset+2, y+boardYOffset+1, ' ', termbox.ColorDefault, color)

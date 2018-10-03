@@ -6,6 +6,7 @@ import (
 	"github.com/nsf/termbox-go"
 )
 
+// NewKeyInput creates a new KeyInput
 func NewKeyInput() *KeyInput {
 	return &KeyInput{
 		chanStop:     make(chan struct{}, 1),
@@ -13,6 +14,7 @@ func NewKeyInput() *KeyInput {
 	}
 }
 
+// Run starts the KeyInput engine
 func (keyInput *KeyInput) Run() {
 	logger.Println("KeyInput Run start")
 
@@ -36,6 +38,7 @@ loop:
 	logger.Println("KeyInput Run end")
 }
 
+// ProcessEvent process the key input event
 func (keyInput *KeyInput) ProcessEvent(event *termbox.Event) {
 	if event.Key == termbox.KeyCtrlI {
 		// Ctrl l (lower case L) to log stack trace

@@ -6,6 +6,7 @@ import (
 	"github.com/nsf/termbox-go"
 )
 
+// NewMinos creates the minos and minoBag
 func NewMinos() {
 	minoI := MinoBlocks{
 		[]termbox.Attribute{blankColor, termbox.ColorCyan, blankColor, blankColor},
@@ -85,6 +86,7 @@ func NewMinos() {
 	}
 }
 
+// minosCloneRotateRight clones a mino and rotates the mino to the right
 func minosCloneRotateRight(minoBlocks MinoBlocks) MinoBlocks {
 	length := len(minoBlocks)
 	newMinoBlocks := make(MinoBlocks, length, length)
