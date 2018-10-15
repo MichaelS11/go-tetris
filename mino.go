@@ -143,7 +143,7 @@ func (mino *Mino) DrawMino(minoType MinoType) {
 	}
 }
 
-// minoOverlap check if a mino overlaps anohter mino
+// minoOverlap check if a mino overlaps another mino
 func (mino *Mino) minoOverlap(mino1 *Mino) bool {
 	minoBlocks := mino.minoRotation[mino.rotation]
 	for i := 0; i < mino.length; i++ {

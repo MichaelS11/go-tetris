@@ -31,7 +31,7 @@ func (board *Board) Clear() {
 	board.currentMino = NewMino()
 }
 
-// PreviousBoard switchs to previous board
+// PreviousBoard switches to previous board
 func (board *Board) PreviousBoard() {
 	board.boardsIndex--
 	if board.boardsIndex < 0 {
@@ -41,7 +41,7 @@ func (board *Board) PreviousBoard() {
 	board.Clear()
 }
 
-// NextBoard switchs to next board
+// NextBoard switches to next board
 func (board *Board) NextBoard() {
 	board.boardsIndex++
 	if board.boardsIndex == len(boards) {
