@@ -13,22 +13,71 @@ func NewBoard() {
 	board.Clear()
 }
 
-// Clear clears the board
+// ChangeBoardSize changes board size
+func ChangeBoardSize(width int, height int) {
+	if board.width == width && board.height == height {
+		return
+	}
+
+	newBoard := &Board{width: width, height: height, boardsIndex: board.boardsIndex}
+	newBoard.colors = make([][]termbox.Attribute, width)
+	for i := 0; i < width; i++ {
+		newBoard.colors[i] = make([]termbox.Attribute, height)
+		for j := 0; j < height; j++ {
+			if i < board.width && j < board.height {
+				newBoard.colors[i][j] = board.colors[i][j]
+			} else {
+				newBoard.colors[i][j] = blankColor
+			}
+		}
+	}
+	newBoard.rotation = make([][]int, width)
+	for i := 0; i < width; i++ {
+		newBoard.rotation[i] = make([]int, height)
+		for j := 0; j < height; j++ {
+			if i < board.width && j < board.height {
+				newBoard.rotation[i][j] = board.rotation[i][j]
+			} else {
+				break
+			}
+		}
+	}
+
+	board = newBoard
+	board.previewMino = NewMino()
+	board.currentMino = NewMino()
+}
+
+// Clear clears the board to orginal state
 func (board *Board) Clear() {
 	board.width = len(boards[board.boardsIndex].colors)
 	board.height = len(boards[board.boardsIndex].colors[0])
-	board.colors = make([][]termbox.Attribute, len(boards[board.boardsIndex].colors))
-	for i := 0; i < len(boards[board.boardsIndex].colors); i++ {
-		board.colors[i] = make([]termbox.Attribute, len(boards[board.boardsIndex].colors[i]))
+	board.colors = make([][]termbox.Attribute, board.width)
+	for i := 0; i < board.width; i++ {
+		board.colors[i] = make([]termbox.Attribute, board.height)
 		copy(board.colors[i], boards[board.boardsIndex].colors[i])
 	}
-	board.rotation = make([][]int, len(boards[board.boardsIndex].rotation))
-	for i := 0; i < len(boards[board.boardsIndex].rotation); i++ {
-		board.rotation[i] = make([]int, len(boards[board.boardsIndex].rotation[i]))
+	board.rotation = make([][]int, board.width)
+	for i := 0; i < board.width; i++ {
+		board.rotation[i] = make([]int, board.height)
 		copy(board.rotation[i], boards[board.boardsIndex].rotation[i])
 	}
 	board.previewMino = NewMino()
 	board.currentMino = NewMino()
+}
+
+// EmptyBoard removes all blocks/colors from the board
+func (board *Board) EmptyBoard() {
+	for i := 0; i < board.width; i++ {
+		for j := 0; j < board.height; j++ {
+			board.colors[i][j] = blankColor
+		}
+	}
+	for i := 0; i < board.width; i++ {
+		for j := 0; j < board.height; j++ {
+			board.rotation[i][j] = 0
+		}
+	}
 }
 
 // PreviousBoard switches to previous board
@@ -247,7 +296,28 @@ func (board *Board) deleteLine(line int) {
 // SetColor sets the color and rotation of board location
 func (board *Board) SetColor(x int, y int, color termbox.Attribute, rotation int) {
 	board.colors[x][y] = color
+	if rotation < 0 {
+		return
+	}
 	board.rotation[x][y] = rotation
+}
+
+// RotateLeft rotates cell left
+func (board *Board) RotateLeft(x int, y int) {
+	if board.rotation[x][y] == 0 {
+		board.rotation[x][y] = 3
+		return
+	}
+	board.rotation[x][y]--
+}
+
+// RotateRight rotates cell right
+func (board *Board) RotateRight(x int, y int) {
+	if board.rotation[x][y] == 3 {
+		board.rotation[x][y] = 0
+		return
+	}
+	board.rotation[x][y]++
 }
 
 // ValidBlockLocation checks if block location is vaild
@@ -309,6 +379,11 @@ func (board *Board) DrawDropMino() {
 	}
 	mino.MoveUp()
 	mino.DrawMino(MinoDrop)
+}
+
+// DrawCursor draws the edit cursor
+func (board *Board) DrawCursor(x int, y int) {
+	view.DrawCursor(x, y, board.colors[x][y])
 }
 
 // printDebugBoard is for printing board in text for debuging

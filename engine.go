@@ -48,7 +48,7 @@ loop:
 				engine.tick()
 			case <-engine.aiTimer.C:
 				engine.ai.ProcessQueue()
-				engine.aiTimer.Reset(engine.tickTime / 6)
+				engine.aiTimer.Reset(engine.tickTime / aiTickDivider)
 			case <-engine.chanStop:
 				break loop
 			}
@@ -93,7 +93,7 @@ func (engine *Engine) Pause() {
 func (engine *Engine) UnPause() {
 	engine.timer.Reset(engine.tickTime)
 	if engine.aiEnabled {
-		engine.aiTimer.Reset(engine.tickTime / 6)
+		engine.aiTimer.Reset(engine.tickTime / aiTickDivider)
 	}
 	engine.paused = false
 }
@@ -246,7 +246,7 @@ loop:
 func (engine *Engine) EnabledAi() {
 	engine.aiEnabled = true
 	go engine.ai.GetBestQueue()
-	engine.aiTimer.Reset(engine.tickTime / 6)
+	engine.aiTimer.Reset(engine.tickTime / aiTickDivider)
 }
 
 // DisableAi disables the AI
@@ -258,4 +258,16 @@ func (engine *Engine) DisableAi() {
 		default:
 		}
 	}
+}
+
+// EnabledEditMode enables edit mode
+func (engine *Engine) EnabledEditMode() {
+	edit.EnabledEditMode()
+	engine.editMode = true
+}
+
+// DisableEditMode disables edit mode
+func (engine *Engine) DisableEditMode() {
+	edit.DisableEditMode()
+	engine.editMode = false
 }

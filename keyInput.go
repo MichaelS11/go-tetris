@@ -40,12 +40,79 @@ loop:
 
 // ProcessEvent process the key input event
 func (keyInput *KeyInput) ProcessEvent(event *termbox.Event) {
-	if event.Key == termbox.KeyCtrlI {
+	if event.Key == termbox.KeyCtrlL {
 		// Ctrl l (lower case L) to log stack trace
 		buffer := make([]byte, 1<<16)
 		length := runtime.Stack(buffer, true)
 		logger.Println("Stack trace")
 		logger.Println(string(buffer[:length]))
+		return
+	}
+
+	if engine.editMode {
+		if edit.boardSize {
+			switch event.Ch {
+			case 0:
+				switch event.Key {
+				case termbox.KeyArrowUp:
+					edit.BoardHeightIncrement()
+				case termbox.KeyArrowDown:
+					edit.BoardHeightDecrement()
+				case termbox.KeyArrowLeft:
+					edit.BoardWidthDecrement()
+				case termbox.KeyArrowRight:
+					edit.BoardWidthIncrement()
+				}
+			case 'q':
+				edit.ChangeBoardSize()
+			}
+		} else {
+			switch event.Ch {
+			case 0:
+				switch event.Key {
+				case termbox.KeyArrowUp:
+					edit.CursorUp()
+				case termbox.KeyArrowDown:
+					edit.CursorDown()
+				case termbox.KeyArrowLeft:
+					edit.CursorLeft()
+				case termbox.KeyArrowRight:
+					edit.CursorRight()
+				case termbox.KeyCtrlB:
+					edit.BoardSizeMode()
+				case termbox.KeyCtrlS:
+					edit.SaveBoard()
+				case termbox.KeyCtrlN:
+					edit.SaveBoardNew()
+				case termbox.KeyCtrlK:
+					edit.DeleteBoard()
+				case termbox.KeyCtrlO:
+					edit.EmptyBoard()
+				case termbox.KeyCtrlQ, termbox.KeyCtrlC:
+					engine.DisableEditMode()
+				}
+			case 'c':
+				edit.SetColor(termbox.ColorCyan)
+			case 'b':
+				edit.SetColor(termbox.ColorBlue)
+			case 'w':
+				edit.SetColor(termbox.ColorWhite)
+			case 'e':
+				edit.SetColor(termbox.ColorYellow)
+			case 'g':
+				edit.SetColor(termbox.ColorGreen)
+			case 'a':
+				edit.SetColor(termbox.ColorMagenta)
+			case 'r':
+				edit.SetColor(termbox.ColorRed)
+			case 'f':
+				edit.SetColor(blankColor)
+			case 'z':
+				edit.RotateLeft()
+			case 'x':
+				edit.RotateRight()
+			}
+		}
 		return
 	}
 
@@ -67,6 +134,8 @@ func (keyInput *KeyInput) ProcessEvent(event *termbox.Event) {
 				board.PreviousBoard()
 			case termbox.KeyArrowRight:
 				board.NextBoard()
+			case termbox.KeyCtrlE:
+				engine.EnabledEditMode()
 			}
 		}
 		return
@@ -89,7 +158,8 @@ func (keyInput *KeyInput) ProcessEvent(event *termbox.Event) {
 		return
 	}
 
-	if event.Ch == 0 {
+	switch event.Ch {
+	case 0:
 		switch event.Key {
 		case termbox.KeySpace:
 			board.MinoDrop()
@@ -102,17 +172,14 @@ func (keyInput *KeyInput) ProcessEvent(event *termbox.Event) {
 		case termbox.KeyArrowRight:
 			board.MinoMoveRight()
 		}
-	} else {
-		switch event.Ch {
-		case 'z':
-			board.MinoRotateLeft()
-		case 'x':
-			board.MinoRotateRight()
-		case 'p':
-			engine.Pause()
-		case 'i':
-			engine.EnabledAi()
-		}
+	case 'z':
+		board.MinoRotateLeft()
+	case 'x':
+		board.MinoRotateRight()
+	case 'p':
+		engine.Pause()
+	case 'i':
+		engine.EnabledAi()
 	}
 
 }

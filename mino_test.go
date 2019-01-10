@@ -24,6 +24,11 @@ func setupForTesting() {
 
 	rand.Seed(1)
 
+	err := loadBoards()
+	if err != nil {
+		log.Fatal("error loading boards:", err)
+	}
+
 	NewMinos()
 	NewBoard()
 	NewEngine()

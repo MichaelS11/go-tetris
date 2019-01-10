@@ -8,10 +8,12 @@ import (
 )
 
 const (
-	blankColor      = termbox.ColorBlack
-	boardXOffset    = 4
-	boardYOffset    = 2
-	rankingFileName = "/tetris.db"
+	blankColor       = termbox.ColorBlack
+	boardXOffset     = 4
+	boardYOffset     = 2
+	aiTickDivider    = 8
+	rankingFileName  = "/go-tetris.db"
+	settingsFileName = "/go-tetris.json"
 
 	// MinoPreview is for the preview mino
 	MinoPreview MinoType = iota
@@ -57,10 +59,18 @@ type (
 		dropDistance int
 	}
 
-	// Boards holds all the premade boards
+	// Boards holds all the boards
 	Boards struct {
+		name     string
 		colors   [][]termbox.Attribute
 		rotation [][]int
+	}
+
+	// BoardsJSON is for JSON format of boards
+	BoardsJSON struct {
+		Name     string
+		Mino     [][]string
+		Rotation [][]int
 	}
 
 	// KeyInput is the key input engine
@@ -103,16 +113,35 @@ type (
 		ai           *Ai
 		aiEnabled    bool
 		aiTimer      *time.Timer
+		editMode     bool
+	}
+
+	// Edit is the board edit mode
+	Edit struct {
+		x         int
+		y         int
+		moved     bool
+		boardSize bool
+		width     int
+		height    int
+		saved     bool
+	}
+
+	// Settings is the JSON load/save file
+	Settings struct {
+		Boards []BoardsJSON
 	}
 )
 
 var (
-	boards []Boards
-
 	baseDir string
 	logger  *log.Logger
 	minos   *Minos
 	board   *Board
 	view    *View
 	engine  *Engine
+	edit    *Edit
+
+	boards            []Boards
+	numInternalBoards int
 )
