@@ -44,6 +44,7 @@ func ChangeBoardSize(width int, height int) {
 	}
 
 	board = newBoard
+	board.fullLinesY = make([]bool, board.height)
 	board.previewMino = NewMino()
 	board.currentMino = NewMino()
 }
@@ -62,6 +63,7 @@ func (board *Board) Clear() {
 		board.rotation[i] = make([]int, board.height)
 		copy(board.rotation[i], boards[board.boardsIndex].rotation[i])
 	}
+	board.fullLinesY = make([]bool, board.height)
 	board.previewMino = NewMino()
 	board.currentMino = NewMino()
 }

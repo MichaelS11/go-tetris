@@ -57,6 +57,7 @@ type (
 		previewMino  *Mino
 		currentMino  *Mino
 		dropDistance int
+		fullLinesY   []bool
 	}
 
 	// Boards holds all the boards

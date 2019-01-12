@@ -103,7 +103,7 @@ func (ai *Ai) GetBestQueue() {
 }
 
 func (board *Board) getMovesforMino(rotate int, move int, slide int, mino1 *Mino, mino2 *Mino) ([]rune, *Mino) {
-	queue := make([]rune, 0, 4)
+	queue := make([]rune, 0, rotate+move+slide+1)
 	mino := *mino1
 
 	if rotate%2 == 0 {
@@ -179,28 +179,29 @@ func (board *Board) getMovesforMino(rotate int, move int, slide int, mino1 *Mino
 }
 
 func (board *Board) boardStatsWithMinos(mino1 *Mino, mino2 *Mino) (fullLines int, holes int, bumpy int) {
+	var i int
+	var j int
 	// fullLines
-	fullLinesY := make([]bool, board.height)
-	for j := 0; j < board.height; j++ {
-		fullLinesY[j] = true
-		for i := 0; i < board.width; i++ {
+	for j = 0; j < board.height; j++ {
+		board.fullLinesY[j] = true
+		for i = 0; i < board.width; i++ {
 			if board.colors[i][j] == blankColor && !mino1.isMinoAtLocation(i, j) && !mino2.isMinoAtLocation(i, j) {
-				fullLinesY[j] = false
+				board.fullLinesY[j] = false
 				break
 			}
 		}
-		if fullLinesY[j] {
+		if board.fullLinesY[j] {
 			fullLines++
 		}
 	}
 
 	// holes and bumpy
 	indexLast := 0
-	for i := 0; i < board.width; i++ {
+	for i = 0; i < board.width; i++ {
 		index := board.height
 		indexOffset := 0
-		for j := 0; j < board.height; j++ {
-			if fullLinesY[j] {
+		for j = 0; j < board.height; j++ {
+			if board.fullLinesY[j] {
 				indexOffset++
 			} else {
 				if board.colors[i][j] != blankColor || mino1.isMinoAtLocation(i, j) || mino2.isMinoAtLocation(i, j) {
@@ -221,8 +222,8 @@ func (board *Board) boardStatsWithMinos(mino1 *Mino, mino2 *Mino) (fullLines int
 		indexLast = index + fullLines - indexOffset
 
 		index++
-		for j := index; j < board.height; j++ {
-			if board.colors[i][j] == blankColor && !mino1.isMinoAtLocation(i, j) && !mino2.isMinoAtLocation(i, j) {
+		for k := index; k < board.height; k++ {
+			if board.colors[i][k] == blankColor && !mino1.isMinoAtLocation(i, k) && !mino2.isMinoAtLocation(i, k) {
 				holes++
 			}
 		}
