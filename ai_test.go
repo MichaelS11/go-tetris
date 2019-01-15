@@ -5,11 +5,12 @@ import (
 )
 
 type testAiStruct struct {
-	info      string
-	minos     []testMinoStruct
-	fullLines int
-	holes     int
-	bumpy     int
+	info       string
+	minos      []testMinoStruct
+	fullLines  int
+	holes      int
+	bumpy      int
+	heightEnds int
 }
 
 func TestAI(t *testing.T) {
@@ -21,32 +22,32 @@ func TestAI(t *testing.T) {
 		{info: "fullLines 2x minoI", minos: []testMinoStruct{
 			{minoRotation: minos.minoBag[0], x: 0, y: 18}, // minoI
 			{minoRotation: minos.minoBag[0], x: 4, y: 18}, // minoI
-		}, fullLines: 0, holes: 0, bumpy: 1},
+		}, fullLines: 0, holes: 0, bumpy: 1, heightEnds: 1},
 		{info: "fullLines 2x2 minoI", minos: []testMinoStruct{
 			{minoRotation: minos.minoBag[0], x: 0, y: 18}, // minoI
 			{minoRotation: minos.minoBag[0], x: 4, y: 18}, // minoI
 			{minoRotation: minos.minoBag[0], x: 0, y: 17}, // minoI
 			{minoRotation: minos.minoBag[0], x: 4, y: 17}, // minoI
-		}, fullLines: 0, holes: 0, bumpy: 2},
+		}, fullLines: 0, holes: 0, bumpy: 2, heightEnds: 2},
 		{info: "fullLines 2x minoI minoO", minos: []testMinoStruct{
 			{minoRotation: minos.minoBag[0], x: 0, y: 18}, // minoI
 			{minoRotation: minos.minoBag[0], x: 4, y: 18}, // minoI
 			{minoRotation: minos.minoBag[3], x: 8, y: 18}, // minoO
-		}, fullLines: 1, holes: 0, bumpy: 1},
+		}, fullLines: 1, holes: 0, bumpy: 1, heightEnds: 1},
 		{info: "fullLines 2x2 minoI minoO", minos: []testMinoStruct{
 			{minoRotation: minos.minoBag[0], x: 0, y: 18}, // minoI
 			{minoRotation: minos.minoBag[0], x: 4, y: 18}, // minoI
 			{minoRotation: minos.minoBag[0], x: 0, y: 17}, // minoI
 			{minoRotation: minos.minoBag[0], x: 4, y: 17}, // minoI
 			{minoRotation: minos.minoBag[3], x: 8, y: 18}, // minoO
-		}, fullLines: 2, holes: 0, bumpy: 0},
+		}, fullLines: 2, holes: 0, bumpy: 0, heightEnds: 0},
 		{info: "fullLines 5x minoO", minos: []testMinoStruct{
 			{minoRotation: minos.minoBag[3], x: 0, y: 18}, // minoO
 			{minoRotation: minos.minoBag[3], x: 2, y: 18}, // minoO
 			{minoRotation: minos.minoBag[3], x: 4, y: 18}, // minoO
 			{minoRotation: minos.minoBag[3], x: 6, y: 18}, // minoO
 			{minoRotation: minos.minoBag[3], x: 8, y: 18}, // minoO
-		}, fullLines: 2, holes: 0, bumpy: 0},
+		}, fullLines: 2, holes: 0, bumpy: 0, heightEnds: 0},
 		{info: "fullLines 4x4 minoI 2x minoO", minos: []testMinoStruct{
 			{minoRotation: minos.minoBag[0], x: 0, y: 18}, // minoI
 			{minoRotation: minos.minoBag[0], x: 4, y: 18}, // minoI
@@ -58,19 +59,19 @@ func TestAI(t *testing.T) {
 			{minoRotation: minos.minoBag[0], x: 4, y: 15}, // minoI
 			{minoRotation: minos.minoBag[3], x: 8, y: 18}, // minoO
 			{minoRotation: minos.minoBag[3], x: 8, y: 16}, // minoO
-		}, fullLines: 4, holes: 0, bumpy: 0},
+		}, fullLines: 4, holes: 0, bumpy: 0, heightEnds: 0},
 		{info: "holes 2x minoI minoO", minos: []testMinoStruct{
 			{minoRotation: minos.minoBag[0], x: 0, y: 18}, // minoI
 			{minoRotation: minos.minoBag[0], x: 6, y: 18}, // minoI
 			{minoRotation: minos.minoBag[3], x: 4, y: 17}, // minoO
-		}, fullLines: 0, holes: 2, bumpy: 4},
+		}, fullLines: 0, holes: 2, bumpy: 4, heightEnds: 2},
 		{info: "holes 6x minoO", minos: []testMinoStruct{
 			{minoRotation: minos.minoBag[3], x: 0, y: 18}, // minoO
 			{minoRotation: minos.minoBag[3], x: 4, y: 18}, // minoO
 			{minoRotation: minos.minoBag[3], x: 8, y: 18}, // minoO
 			{minoRotation: minos.minoBag[3], x: 2, y: 16}, // minoO
 			{minoRotation: minos.minoBag[3], x: 6, y: 16}, // minoO
-		}, fullLines: 0, holes: 8, bumpy: 8},
+		}, fullLines: 0, holes: 8, bumpy: 8, heightEnds: 4},
 		{info: "holes 4x minoT 2x minoI", minos: []testMinoStruct{
 			{minoRotation: minos.minoBag[5], x: 0, y: 18}, // minoT
 			{minoRotation: minos.minoBag[5], x: 7, y: 18}, // minoT
@@ -78,12 +79,12 @@ func TestAI(t *testing.T) {
 			{minoRotation: minos.minoBag[5], x: 7, y: 16}, // minoT
 			{minoRotation: minos.minoBag[0], x: 2, y: 14}, // minoI
 			{minoRotation: minos.minoBag[0], x: 6, y: 14}, // minoI
-		}, fullLines: 0, holes: 19, bumpy: 4},
+		}, fullLines: 0, holes: 19, bumpy: 4, heightEnds: 6},
 		{info: "holes 3x minoZ", minos: []testMinoStruct{
 			{minoRotation: minos.minoBag[6], x: 0, y: 18}, // minoZ
 			{minoRotation: minos.minoBag[6], x: 3, y: 18}, // minoZ
 			{minoRotation: minos.minoBag[6], x: 6, y: 18}, // minoZ
-		}, fullLines: 0, holes: 3, bumpy: 6},
+		}, fullLines: 0, holes: 3, bumpy: 6, heightEnds: 2},
 		{info: "holes 4x minoT 2x minoI 2x minoO", minos: []testMinoStruct{
 			{minoRotation: minos.minoBag[5], x: 0, y: 18}, // minoT
 			{minoRotation: minos.minoBag[5], x: 7, y: 18}, // minoT
@@ -93,43 +94,43 @@ func TestAI(t *testing.T) {
 			{minoRotation: minos.minoBag[3], x: 0, y: 14}, // minoO
 			{minoRotation: minos.minoBag[0], x: 2, y: 14}, // minoI
 			{minoRotation: minos.minoBag[0], x: 6, y: 14}, // minoI
-		}, fullLines: 1, holes: 9, bumpy: 16},
+		}, fullLines: 1, holes: 9, bumpy: 16, heightEnds: 8},
 		{info: "bumpy 2x minoT - 1", minos: []testMinoStruct{
 			{minoRotation: minos.minoBag[5], x: 0, y: 18}, // minoT
 			{minoRotation: minos.minoBag[5], x: 5, y: 18}, // minoT
-		}, fullLines: 0, holes: 0, bumpy: 7},
+		}, fullLines: 0, holes: 0, bumpy: 7, heightEnds: 1},
 		{info: "bumpy 2x minoT - 2", minos: []testMinoStruct{
 			{minoRotation: minos.minoBag[5], x: 1, y: 18}, // minoT
 			{minoRotation: minos.minoBag[5], x: 6, y: 18}, // minoT
-		}, fullLines: 0, holes: 0, bumpy: 8},
+		}, fullLines: 0, holes: 0, bumpy: 8, heightEnds: 0},
 		{info: "bumpy 2x minoT - 3", minos: []testMinoStruct{
 			{minoRotation: minos.minoBag[5], x: 2, y: 18}, // minoT
 			{minoRotation: minos.minoBag[5], x: 7, y: 18}, // minoT
-		}, fullLines: 0, holes: 0, bumpy: 7},
+		}, fullLines: 0, holes: 0, bumpy: 7, heightEnds: 1},
 		{info: "bumpy 2x minoJ - 1", minos: []testMinoStruct{
 			{minoRotation: minos.minoBag[1], x: 0, y: 18}, // minoJ
 			{minoRotation: minos.minoBag[1], x: 5, y: 18}, // minoJ
-		}, fullLines: 0, holes: 0, bumpy: 6},
+		}, fullLines: 0, holes: 0, bumpy: 6, heightEnds: 2},
 		{info: "bumpy 2x minoJ - 2", minos: []testMinoStruct{
 			{minoRotation: minos.minoBag[1], x: 1, y: 18}, // minoJ
 			{minoRotation: minos.minoBag[1], x: 6, y: 18}, // minoJ
-		}, fullLines: 0, holes: 0, bumpy: 8},
+		}, fullLines: 0, holes: 0, bumpy: 8, heightEnds: 0},
 		{info: "bumpy 2x minoJ - 2", minos: []testMinoStruct{
 			{minoRotation: minos.minoBag[1], x: 2, y: 18}, // minoJ
 			{minoRotation: minos.minoBag[1], x: 7, y: 18}, // minoJ
-		}, fullLines: 0, holes: 0, bumpy: 7},
+		}, fullLines: 0, holes: 0, bumpy: 7, heightEnds: 1},
 		{info: "bumpy 2x minoL - 1", minos: []testMinoStruct{
 			{minoRotation: minos.minoBag[2], x: 0, y: 18}, // minoL
 			{minoRotation: minos.minoBag[2], x: 5, y: 18}, // minoL
-		}, fullLines: 0, holes: 0, bumpy: 7},
+		}, fullLines: 0, holes: 0, bumpy: 7, heightEnds: 1},
 		{info: "bumpy 2x minoL - 2", minos: []testMinoStruct{
 			{minoRotation: minos.minoBag[2], x: 1, y: 18}, // minoL
 			{minoRotation: minos.minoBag[2], x: 6, y: 18}, // minoL
-		}, fullLines: 0, holes: 0, bumpy: 8},
+		}, fullLines: 0, holes: 0, bumpy: 8, heightEnds: 0},
 		{info: "bumpy 2x minoL - 3", minos: []testMinoStruct{
 			{minoRotation: minos.minoBag[2], x: 2, y: 18}, // minoL
 			{minoRotation: minos.minoBag[2], x: 7, y: 18}, // minoL
-		}, fullLines: 0, holes: 0, bumpy: 6},
+		}, fullLines: 0, holes: 0, bumpy: 6, heightEnds: 2},
 	}
 
 	runAiTests(t, tests)
@@ -146,14 +147,14 @@ func TestBigBoardAI(t *testing.T) {
 			{minoRotation: minos.minoBag[0], x: 4, y: 18},  // minoI
 			{minoRotation: minos.minoBag[0], x: 8, y: 18},  // minoI
 			{minoRotation: minos.minoBag[0], x: 12, y: 18}, // minoI
-		}, fullLines: 0, holes: 0, bumpy: 1},
+		}, fullLines: 0, holes: 0, bumpy: 1, heightEnds: 1},
 		{info: "fullLines 5x minoI", minos: []testMinoStruct{
 			{minoRotation: minos.minoBag[0], x: 0, y: 18},  // minoI
 			{minoRotation: minos.minoBag[0], x: 4, y: 18},  // minoI
 			{minoRotation: minos.minoBag[0], x: 8, y: 18},  // minoI
 			{minoRotation: minos.minoBag[0], x: 12, y: 18}, // minoI
 			{minoRotation: minos.minoBag[0], x: 16, y: 18}, // minoI
-		}, fullLines: 1, holes: 0, bumpy: 0},
+		}, fullLines: 1, holes: 0, bumpy: 0, heightEnds: 0},
 		{info: "fullLines 5x2 minoI", minos: []testMinoStruct{
 			{minoRotation: minos.minoBag[0], x: 0, y: 18},  // minoI
 			{minoRotation: minos.minoBag[0], x: 4, y: 18},  // minoI
@@ -165,7 +166,7 @@ func TestBigBoardAI(t *testing.T) {
 			{minoRotation: minos.minoBag[0], x: 8, y: 17},  // minoI
 			{minoRotation: minos.minoBag[0], x: 12, y: 17}, // minoI
 			{minoRotation: minos.minoBag[0], x: 16, y: 17}, // minoI
-		}, fullLines: 2, holes: 0, bumpy: 0},
+		}, fullLines: 2, holes: 0, bumpy: 0, heightEnds: 0},
 		{info: "fullLines 9x minoO", minos: []testMinoStruct{
 			{minoRotation: minos.minoBag[3], x: 0, y: 18},  // minoO
 			{minoRotation: minos.minoBag[3], x: 2, y: 18},  // minoO
@@ -176,7 +177,7 @@ func TestBigBoardAI(t *testing.T) {
 			{minoRotation: minos.minoBag[3], x: 12, y: 18}, // minoO
 			{minoRotation: minos.minoBag[3], x: 14, y: 18}, // minoO
 			{minoRotation: minos.minoBag[3], x: 16, y: 18}, // minoO
-		}, fullLines: 0, holes: 0, bumpy: 2},
+		}, fullLines: 0, holes: 0, bumpy: 2, heightEnds: 2},
 		{info: "fullLines 10x minoO", minos: []testMinoStruct{
 			{minoRotation: minos.minoBag[3], x: 0, y: 18},  // minoO
 			{minoRotation: minos.minoBag[3], x: 2, y: 18},  // minoO
@@ -188,7 +189,7 @@ func TestBigBoardAI(t *testing.T) {
 			{minoRotation: minos.minoBag[3], x: 14, y: 18}, // minoO
 			{minoRotation: minos.minoBag[3], x: 16, y: 18}, // minoO
 			{minoRotation: minos.minoBag[3], x: 18, y: 18}, // minoO
-		}, fullLines: 2, holes: 0, bumpy: 0},
+		}, fullLines: 2, holes: 0, bumpy: 0, heightEnds: 0},
 		{info: "holes 3x minoO 3x minoI", minos: []testMinoStruct{
 			{minoRotation: minos.minoBag[3], x: 0, y: 18},  // minoO
 			{minoRotation: minos.minoBag[3], x: 6, y: 18},  // minoO
@@ -196,14 +197,14 @@ func TestBigBoardAI(t *testing.T) {
 			{minoRotation: minos.minoBag[0], x: 2, y: 16},  // minoI
 			{minoRotation: minos.minoBag[0], x: 8, y: 16},  // minoI
 			{minoRotation: minos.minoBag[0], x: 14, y: 16}, // minoI
-		}, fullLines: 0, holes: 24, bumpy: 8},
+		}, fullLines: 0, holes: 24, bumpy: 8, heightEnds: 2},
 		{info: "holes 5x minoZ", minos: []testMinoStruct{
 			{minoRotation: minos.minoBag[6], x: 0, y: 18},  // minoZ
 			{minoRotation: minos.minoBag[6], x: 4, y: 18},  // minoZ
 			{minoRotation: minos.minoBag[6], x: 8, y: 18},  // minoZ
 			{minoRotation: minos.minoBag[6], x: 12, y: 18}, // minoZ
 			{minoRotation: minos.minoBag[6], x: 16, y: 18}, // minoZ
-		}, fullLines: 0, holes: 5, bumpy: 18},
+		}, fullLines: 0, holes: 5, bumpy: 18, heightEnds: 2},
 		{info: "holes 6x minoT 2x minoO 5x minoI", minos: []testMinoStruct{
 			{minoRotation: minos.minoBag[5], x: 0, y: 18},  // minoT
 			{minoRotation: minos.minoBag[5], x: 6, y: 18},  // minoT
@@ -218,43 +219,79 @@ func TestBigBoardAI(t *testing.T) {
 			{minoRotation: minos.minoBag[0], x: 8, y: 14},  // minoI
 			{minoRotation: minos.minoBag[0], x: 12, y: 14}, // minoI
 			{minoRotation: minos.minoBag[0], x: 16, y: 14}, // minoI
-		}, fullLines: 1, holes: 18, bumpy: 23},
+		}, fullLines: 1, holes: 18, bumpy: 23, heightEnds: 5},
 		{info: "bumpy 4x minoJ - 1", minos: []testMinoStruct{
 			{minoRotation: minos.minoBag[1], x: 0, y: 18},  // minoJ
 			{minoRotation: minos.minoBag[1], x: 5, y: 18},  // minoJ
 			{minoRotation: minos.minoBag[1], x: 10, y: 18}, // minoJ
 			{minoRotation: minos.minoBag[1], x: 15, y: 18}, // minoJ
-		}, fullLines: 0, holes: 0, bumpy: 14},
+		}, fullLines: 0, holes: 0, bumpy: 14, heightEnds: 2},
 		{info: "bumpy 4x minoJ - 2", minos: []testMinoStruct{
 			{minoRotation: minos.minoBag[1], x: 1, y: 18},  // minoJ
 			{minoRotation: minos.minoBag[1], x: 6, y: 18},  // minoJ
 			{minoRotation: minos.minoBag[1], x: 11, y: 18}, // minoJ
 			{minoRotation: minos.minoBag[1], x: 16, y: 18}, // minoJ
-		}, fullLines: 0, holes: 0, bumpy: 16},
+		}, fullLines: 0, holes: 0, bumpy: 16, heightEnds: 0},
 		{info: "bumpy 4x minoJ - 3", minos: []testMinoStruct{
 			{minoRotation: minos.minoBag[1], x: 2, y: 18},  // minoJ
 			{minoRotation: minos.minoBag[1], x: 7, y: 18},  // minoJ
 			{minoRotation: minos.minoBag[1], x: 12, y: 18}, // minoJ
 			{minoRotation: minos.minoBag[1], x: 17, y: 18}, // minoJ
-		}, fullLines: 0, holes: 0, bumpy: 15},
+		}, fullLines: 0, holes: 0, bumpy: 15, heightEnds: 1},
 		{info: "bumpy 4x minoL - 1", minos: []testMinoStruct{
 			{minoRotation: minos.minoBag[2], x: 0, y: 18},  // minoL
 			{minoRotation: minos.minoBag[2], x: 5, y: 18},  // minoL
 			{minoRotation: minos.minoBag[2], x: 10, y: 18}, // minoL
 			{minoRotation: minos.minoBag[2], x: 15, y: 18}, // minoL
-		}, fullLines: 0, holes: 0, bumpy: 15},
+		}, fullLines: 0, holes: 0, bumpy: 15, heightEnds: 1},
 		{info: "bumpy 4x minoL - 2", minos: []testMinoStruct{
 			{minoRotation: minos.minoBag[2], x: 1, y: 18},  // minoL
 			{minoRotation: minos.minoBag[2], x: 6, y: 18},  // minoL
 			{minoRotation: minos.minoBag[2], x: 11, y: 18}, // minoL
 			{minoRotation: minos.minoBag[2], x: 16, y: 18}, // minoL
-		}, fullLines: 0, holes: 0, bumpy: 16},
+		}, fullLines: 0, holes: 0, bumpy: 16, heightEnds: 0},
 		{info: "bumpy 4x minoL - 3", minos: []testMinoStruct{
 			{minoRotation: minos.minoBag[2], x: 2, y: 18},  // minoL
 			{minoRotation: minos.minoBag[2], x: 7, y: 18},  // minoL
 			{minoRotation: minos.minoBag[2], x: 12, y: 18}, // minoL
 			{minoRotation: minos.minoBag[2], x: 17, y: 18}, // minoL
-		}, fullLines: 0, holes: 0, bumpy: 14},
+		}, fullLines: 0, holes: 0, bumpy: 14, heightEnds: 2},
+		{info: "bumpy 4x minoL & 10x minoI", minos: []testMinoStruct{
+			{minoRotation: minos.minoBag[2], x: 2, y: 18},  // minoL
+			{minoRotation: minos.minoBag[2], x: 7, y: 18},  // minoL
+			{minoRotation: minos.minoBag[2], x: 12, y: 18}, // minoL
+			{minoRotation: minos.minoBag[2], x: 17, y: 18}, // minoL
+			{minoRotation: minos.minoBag[0], x: 0, y: 16},  // minoI
+			{minoRotation: minos.minoBag[0], x: 4, y: 16},  // minoI
+			{minoRotation: minos.minoBag[0], x: 8, y: 16},  // minoI
+			{minoRotation: minos.minoBag[0], x: 12, y: 16}, // minoI
+			{minoRotation: minos.minoBag[0], x: 16, y: 16}, // minoI
+			{minoRotation: minos.minoBag[0], x: 0, y: 15},  // minoI
+			{minoRotation: minos.minoBag[0], x: 4, y: 15},  // minoI
+			{minoRotation: minos.minoBag[0], x: 8, y: 15},  // minoI
+			{minoRotation: minos.minoBag[0], x: 12, y: 15}, // minoI
+			{minoRotation: minos.minoBag[0], x: 16, y: 15}, // minoI
+		}, fullLines: 2, holes: 0, bumpy: 14, heightEnds: 2},
+		{info: "bumpy 8x minoL & 10x minoI", minos: []testMinoStruct{
+			{minoRotation: minos.minoBag[2], x: 2, y: 18},  // minoL
+			{minoRotation: minos.minoBag[2], x: 7, y: 18},  // minoL
+			{minoRotation: minos.minoBag[2], x: 12, y: 18}, // minoL
+			{minoRotation: minos.minoBag[2], x: 17, y: 18}, // minoL
+			{minoRotation: minos.minoBag[0], x: 0, y: 16},  // minoI
+			{minoRotation: minos.minoBag[0], x: 4, y: 16},  // minoI
+			{minoRotation: minos.minoBag[0], x: 8, y: 16},  // minoI
+			{minoRotation: minos.minoBag[0], x: 12, y: 16}, // minoI
+			{minoRotation: minos.minoBag[0], x: 16, y: 16}, // minoI
+			{minoRotation: minos.minoBag[0], x: 0, y: 15},  // minoI
+			{minoRotation: minos.minoBag[0], x: 4, y: 15},  // minoI
+			{minoRotation: minos.minoBag[0], x: 8, y: 15},  // minoI
+			{minoRotation: minos.minoBag[0], x: 12, y: 15}, // minoI
+			{minoRotation: minos.minoBag[0], x: 16, y: 15}, // minoI
+			{minoRotation: minos.minoBag[2], x: 2, y: 14},  // minoL
+			{minoRotation: minos.minoBag[2], x: 7, y: 14},  // minoL
+			{minoRotation: minos.minoBag[2], x: 12, y: 14}, // minoL
+			{minoRotation: minos.minoBag[2], x: 17, y: 14}, // minoL
+		}, fullLines: 2, holes: 8, bumpy: 28, heightEnds: 4},
 	}
 
 	runAiTests(t, tests)
@@ -282,7 +319,7 @@ func runAiTests(t *testing.T, tests []testAiStruct) {
 			}
 		}
 
-		fullLines, holes, bumpy := board.boardStatsWithMinos(mino1, mino2)
+		fullLines, holes, bumpy, heightEnds := board.boardStatsWithMinos(mino1, mino2)
 
 		if fullLines != test.fullLines {
 			mino1.SetOnBoard()
@@ -309,6 +346,15 @@ func runAiTests(t *testing.T, tests []testAiStruct) {
 				t.Log(lines[i])
 			}
 			t.Errorf("AI bumpy - received: %v - expected: %v - info %v", bumpy, test.bumpy, test.info)
+			continue
+		}
+		if heightEnds != test.heightEnds {
+			mino1.SetOnBoard()
+			lines := board.getDebugBoardWithMino(mino2)
+			for i := 0; i < len(lines); i++ {
+				t.Log(lines[i])
+			}
+			t.Errorf("AI heightEnds - received: %v - expected: %v - info %v", heightEnds, test.heightEnds, test.info)
 			continue
 		}
 

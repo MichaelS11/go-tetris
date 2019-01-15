@@ -100,10 +100,11 @@ func (mino *Mino) ValidLocation(mustBeOnBoard bool) bool {
 	minoBlocks := mino.minoRotation[mino.rotation]
 	for i := 0; i < mino.length; i++ {
 		for j := 0; j < mino.length; j++ {
-			if minoBlocks[i][j] != blankColor {
-				if !board.ValidBlockLocation(mino.x+i, mino.y+j, mustBeOnBoard) {
-					return false
-				}
+			if minoBlocks[i][j] == blankColor {
+				continue
+			}
+			if !board.ValidBlockLocation(mino.x+i, mino.y+j, mustBeOnBoard) {
+				return false
 			}
 		}
 	}
@@ -148,10 +149,11 @@ func (mino *Mino) minoOverlap(mino1 *Mino) bool {
 	minoBlocks := mino.minoRotation[mino.rotation]
 	for i := 0; i < mino.length; i++ {
 		for j := 0; j < mino.length; j++ {
-			if minoBlocks[i][j] != blankColor {
-				if mino1.isMinoAtLocation(mino.x+i, mino.y+j) {
-					return true
-				}
+			if minoBlocks[i][j] == blankColor {
+				continue
+			}
+			if mino1.isMinoAtLocation(mino.x+i, mino.y+j) {
+				return true
 			}
 		}
 	}
@@ -166,8 +168,7 @@ func (mino *Mino) isMinoAtLocation(x int, y int) bool {
 		return false
 	}
 
-	minoBlocks := mino.minoRotation[mino.rotation]
-	if minoBlocks[xIndex][yIndex] != blankColor {
+	if mino.minoRotation[mino.rotation][xIndex][yIndex] != blankColor {
 		return true
 	}
 

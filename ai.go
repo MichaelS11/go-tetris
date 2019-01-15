@@ -43,10 +43,15 @@ func (ai *Ai) ProcessQueue() {
 // GetBestQueue gets the best queue
 func (ai *Ai) GetBestQueue() {
 	bestScore := -9999999
-	bestQueue := make([]rune, 0, 0)
-	currentMino := *board.currentMino
+	bestQueue := []rune{'x'}
+	currentMino := board.currentMino
+	previewMino := board.previewMino
 	rotations1 := 5
 	rotations2 := 5
+	slides := 5
+	if board.width > 10 {
+		slides = 3
+	}
 
 	switch currentMino.minoRotation[0][1][1] {
 	case termbox.ColorCyan, termbox.ColorGreen, termbox.ColorRed:
@@ -54,33 +59,33 @@ func (ai *Ai) GetBestQueue() {
 	case termbox.ColorYellow:
 		rotations1 = 1
 	}
-	switch board.previewMino.minoRotation[0][1][1] {
+	switch previewMino.minoRotation[0][1][1] {
 	case termbox.ColorCyan, termbox.ColorGreen, termbox.ColorRed:
 		rotations2 = 2
 	case termbox.ColorYellow:
 		rotations2 = 1
 	}
 
-	for slide1 := 0; slide1 < 5; slide1++ {
+	for slide1 := 0; slide1 < slides; slide1++ {
 		for move1 := board.width; move1 >= 0; move1-- {
 			for rotate1 := 0; rotate1 < rotations1; rotate1++ {
 
-				queue, mino1 := board.getMovesforMino(rotate1, move1, slide1, &currentMino, nil)
+				queue, mino1 := board.getMovesforMino(rotate1, move1, slide1, currentMino, nil)
 				if mino1 == nil {
 					continue
 				}
 
-				for slide2 := 0; slide2 < 5; slide2++ {
+				for slide2 := 0; slide2 < slides; slide2++ {
 					for move2 := board.width; move2 >= 0; move2-- {
 						for rotate2 := 0; rotate2 < rotations2; rotate2++ {
 
-							_, mino2 := board.getMovesforMino(rotate2, move2, slide2, board.previewMino, mino1)
+							_, mino2 := board.getMovesforMino(rotate2, move2, slide2, previewMino, mino1)
 							if mino2 == nil {
 								continue
 							}
 
-							fullLines, holes, bumpy := board.boardStatsWithMinos(mino1, mino2)
-							score := ai.getScoreFromBoardStats(fullLines, holes, bumpy)
+							fullLines, holes, bumpy, heightEnds := board.boardStatsWithMinos(mino1, mino2)
+							score := ai.getScoreFromBoardStats(fullLines, holes, bumpy, heightEnds, mino1.y, mino2.y)
 
 							if score > bestScore {
 								bestScore = score
@@ -95,54 +100,53 @@ func (ai *Ai) GetBestQueue() {
 		}
 	}
 
-	if len(bestQueue) < 1 {
-		bestQueue = append(bestQueue, 'x')
-	}
-
 	ai.newQueue = &bestQueue
 }
 
 func (board *Board) getMovesforMino(rotate int, move int, slide int, mino1 *Mino, mino2 *Mino) ([]rune, *Mino) {
-	queue := make([]rune, 0, rotate+move+slide+1)
+	var i int
+	queue := make([]rune, 0, (rotate/2+1)+(move/2+1)+(slide/2+1)+1)
 	mino := *mino1
+
+	mino.MoveDown()
 
 	if rotate%2 == 0 {
 		rotate /= 2
-		for i := 0; i < rotate; i++ {
+		for i = 0; i < rotate; i++ {
 			mino.RotateRight()
-			queue = append(queue, 'e')
 			if !mino.ValidLocation(false) || (mino2 != nil && mino2.minoOverlap(&mino)) {
 				return queue, nil
 			}
+			queue = append(queue, 'e')
 		}
 	} else {
 		rotate = rotate/2 + 1
-		for i := 0; i < rotate; i++ {
+		for i = 0; i < rotate; i++ {
 			mino.RotateLeft()
-			queue = append(queue, 'q')
 			if !mino.ValidLocation(false) || (mino2 != nil && mino2.minoOverlap(&mino)) {
 				return queue, nil
 			}
+			queue = append(queue, 'q')
 		}
 	}
 
 	if move%2 == 0 {
 		move /= 2
-		for i := 0; i < move; i++ {
-			mino.MoveLeft()
-			queue = append(queue, 'a')
+		for i = 0; i < move; i++ {
+			mino.MoveRight()
 			if !mino.ValidLocation(false) || (mino2 != nil && mino2.minoOverlap(&mino)) {
 				return queue, nil
 			}
+			queue = append(queue, 'd')
 		}
 	} else {
 		move = move/2 + 1
-		for i := 0; i < move; i++ {
-			mino.MoveRight()
-			queue = append(queue, 'd')
+		for i = 0; i < move; i++ {
+			mino.MoveLeft()
 			if !mino.ValidLocation(false) || (mino2 != nil && mino2.minoOverlap(&mino)) {
 				return queue, nil
 			}
+			queue = append(queue, 'a')
 		}
 	}
 	for mino.ValidLocation(false) && (mino2 == nil || !mino2.minoOverlap(&mino)) {
@@ -153,34 +157,35 @@ func (board *Board) getMovesforMino(rotate int, move int, slide int, mino1 *Mino
 
 	if slide%2 == 0 {
 		slide /= 2
-		for i := 0; i < slide; i++ {
+		for i = 0; i < slide; i++ {
 			mino.MoveLeft()
-			queue = append(queue, 'a')
 			if !mino.ValidLocation(false) || (mino2 != nil && mino2.minoOverlap(&mino)) {
 				return queue, nil
 			}
+			queue = append(queue, 'a')
 		}
 	} else {
 		slide = slide/2 + 1
-		for i := 0; i < slide; i++ {
+		for i = 0; i < slide; i++ {
 			mino.MoveRight()
-			queue = append(queue, 'd')
 			if !mino.ValidLocation(false) || (mino2 != nil && mino2.minoOverlap(&mino)) {
 				return queue, nil
 			}
+			queue = append(queue, 'd')
 		}
 	}
 
 	if !mino.ValidLocation(true) {
 		return queue, nil
 	}
-	queue = append(queue, 'x')
-	return queue, &mino
+
+	return append(queue, 'x'), &mino
 }
 
-func (board *Board) boardStatsWithMinos(mino1 *Mino, mino2 *Mino) (fullLines int, holes int, bumpy int) {
+func (board *Board) boardStatsWithMinos(mino1 *Mino, mino2 *Mino) (fullLines int, holes int, bumpy int, heightEnds int) {
 	var i int
 	var j int
+
 	// fullLines
 	for j = 0; j < board.height; j++ {
 		board.fullLinesY[j] = true
@@ -196,47 +201,57 @@ func (board *Board) boardStatsWithMinos(mino1 *Mino, mino2 *Mino) (fullLines int
 	}
 
 	// holes and bumpy
-	indexLast := 0
+	var foundLast int
+	var fullLinesFound int
 	for i = 0; i < board.width; i++ {
-		index := board.height
-		indexOffset := 0
+		found := board.height
+		fullLinesFound = 0
 		for j = 0; j < board.height; j++ {
 			if board.fullLinesY[j] {
-				indexOffset++
+				fullLinesFound++
 			} else {
 				if board.colors[i][j] != blankColor || mino1.isMinoAtLocation(i, j) || mino2.isMinoAtLocation(i, j) {
-					index = j
+					found = j
 					break
 				}
 			}
 		}
 
-		if i != 0 {
-			diffrence := (index + fullLines - indexOffset) - indexLast
+		if i == 0 {
+			heightEnds = board.height - (found + fullLines - fullLinesFound)
+		} else {
+			diffrence := (found + fullLines - fullLinesFound) - foundLast
 			if diffrence < 0 {
 				diffrence = -diffrence
 			}
 			bumpy += diffrence
-
 		}
-		indexLast = index + fullLines - indexOffset
+		foundLast = found + fullLines - fullLinesFound
 
-		index++
-		for k := index; k < board.height; k++ {
-			if board.colors[i][k] == blankColor && !mino1.isMinoAtLocation(i, k) && !mino2.isMinoAtLocation(i, k) {
+		for j++; j < board.height; j++ {
+			if board.colors[i][j] == blankColor && !mino1.isMinoAtLocation(i, j) && !mino2.isMinoAtLocation(i, j) {
 				holes++
 			}
 		}
 	}
+
+	heightEnds += board.height - foundLast
+
 	return
 }
 
-func (ai *Ai) getScoreFromBoardStats(fullLines int, holes int, bumpy int) int {
-	score := 0
-	if fullLines == 4 {
+func (ai *Ai) getScoreFromBoardStats(fullLines int, holes int, bumpy int, heightEnds int, height1 int, height2 int) int {
+	score := 8 * heightEnds
+	if fullLines > 3 {
 		score += 512
 	}
-	score -= 80 * holes
-	score -= 20 * bumpy
+	score -= 75 * holes
+	score -= 15 * bumpy
+	if height1 < 6 {
+		score -= 10 * (5 - height1)
+	}
+	if height2 < 6 {
+		score -= 10 * (5 - height2)
+	}
 	return score
 }
