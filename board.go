@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/nsf/termbox-go"
+	"github.com/gdamore/tcell"
 )
 
 // NewBoard creates a new clear board
@@ -20,14 +20,14 @@ func ChangeBoardSize(width int, height int) {
 	}
 
 	newBoard := &Board{width: width, height: height, boardsIndex: board.boardsIndex}
-	newBoard.colors = make([][]termbox.Attribute, width)
+	newBoard.colors = make([][]tcell.Color, width)
 	for i := 0; i < width; i++ {
-		newBoard.colors[i] = make([]termbox.Attribute, height)
+		newBoard.colors[i] = make([]tcell.Color, height)
 		for j := 0; j < height; j++ {
 			if i < board.width && j < board.height {
 				newBoard.colors[i][j] = board.colors[i][j]
 			} else {
-				newBoard.colors[i][j] = blankColor
+				newBoard.colors[i][j] = colorBlank
 			}
 		}
 	}
@@ -53,9 +53,9 @@ func ChangeBoardSize(width int, height int) {
 func (board *Board) Clear() {
 	board.width = len(boards[board.boardsIndex].colors)
 	board.height = len(boards[board.boardsIndex].colors[0])
-	board.colors = make([][]termbox.Attribute, board.width)
+	board.colors = make([][]tcell.Color, board.width)
 	for i := 0; i < board.width; i++ {
-		board.colors[i] = make([]termbox.Attribute, board.height)
+		board.colors[i] = make([]tcell.Color, board.height)
 		copy(board.colors[i], boards[board.boardsIndex].colors[i])
 	}
 	board.rotation = make([][]int, board.width)
@@ -72,7 +72,7 @@ func (board *Board) Clear() {
 func (board *Board) EmptyBoard() {
 	for i := 0; i < board.width; i++ {
 		for j := 0; j < board.height; j++ {
-			board.colors[i][j] = blankColor
+			board.colors[i][j] = colorBlank
 		}
 	}
 	for i := 0; i < board.width; i++ {
@@ -272,7 +272,7 @@ func (board *Board) fullLines() []int {
 // isFullLine checks if line is full
 func (board *Board) isFullLine(j int) bool {
 	for i := 0; i < board.width; i++ {
-		if board.colors[i][j] == blankColor {
+		if board.colors[i][j] == colorBlank {
 			return false
 		}
 	}
@@ -282,7 +282,7 @@ func (board *Board) isFullLine(j int) bool {
 // deleteLine deletes the line
 func (board *Board) deleteLine(line int) {
 	for i := 0; i < board.width; i++ {
-		board.colors[i][line] = blankColor
+		board.colors[i][line] = colorBlank
 	}
 	for j := line; j > 0; j-- {
 		for i := 0; i < board.width; i++ {
@@ -291,12 +291,12 @@ func (board *Board) deleteLine(line int) {
 		}
 	}
 	for i := 0; i < board.width; i++ {
-		board.colors[i][0] = blankColor
+		board.colors[i][0] = colorBlank
 	}
 }
 
 // SetColor sets the color and rotation of board location
-func (board *Board) SetColor(x int, y int, color termbox.Attribute, rotation int) {
+func (board *Board) SetColor(x int, y int, color tcell.Color, rotation int) {
 	board.colors[x][y] = color
 	if rotation < 0 {
 		return
@@ -337,7 +337,7 @@ func (board *Board) ValidBlockLocation(x int, y int, mustBeOnBoard bool) bool {
 		}
 	}
 	if y > -1 {
-		if board.colors[x][y] != blankColor {
+		if board.colors[x][y] != colorBlank {
 			return false
 		}
 	}
@@ -353,7 +353,7 @@ func ValidDisplayLocation(x int, y int) bool {
 func (board *Board) DrawBoard() {
 	for i := 0; i < board.width; i++ {
 		for j := 0; j < board.height; j++ {
-			if board.colors[i][j] != blankColor {
+			if board.colors[i][j] != colorBlank {
 				view.DrawBlock(i, j, board.colors[i][j], board.rotation[i][j])
 			}
 		}
@@ -393,21 +393,21 @@ func (board *Board) printDebugBoard() {
 	for j := 0; j < board.height; j++ {
 		for i := 0; i < board.width; i++ {
 			switch board.colors[i][j] {
-			case blankColor:
+			case colorBlank:
 				fmt.Print(".")
-			case termbox.ColorBlue:
+			case colorBlue:
 				fmt.Print("B")
-			case termbox.ColorCyan:
+			case colorCyan:
 				fmt.Print("C")
-			case termbox.ColorGreen:
+			case colorGreen:
 				fmt.Print("G")
-			case termbox.ColorMagenta:
+			case colorMagenta:
 				fmt.Print("M")
-			case termbox.ColorRed:
+			case colorRed:
 				fmt.Print("R")
-			case termbox.ColorWhite:
+			case colorWhite:
 				fmt.Print("W")
-			case termbox.ColorYellow:
+			case colorYellow:
 				fmt.Print("Y")
 			default:
 				fmt.Print("U")
@@ -423,21 +423,21 @@ func (board *Board) getDebugBoard() []string {
 	for j := 0; j < board.height; j++ {
 		for i := 0; i < board.width; i++ {
 			switch board.colors[i][j] {
-			case blankColor:
+			case colorBlank:
 				lines[j] += "."
-			case termbox.ColorBlue:
+			case colorBlue:
 				lines[j] += "B"
-			case termbox.ColorCyan:
+			case colorCyan:
 				lines[j] += "C"
-			case termbox.ColorGreen:
+			case colorGreen:
 				lines[j] += "G"
-			case termbox.ColorMagenta:
+			case colorMagenta:
 				lines[j] += "M"
-			case termbox.ColorRed:
+			case colorRed:
 				lines[j] += "R"
-			case termbox.ColorWhite:
+			case colorWhite:
 				lines[j] += "W"
-			case termbox.ColorYellow:
+			case colorYellow:
 				lines[j] += "Y"
 			default:
 				lines[j] += "U"
@@ -453,40 +453,40 @@ func (board *Board) getDebugBoardWithMino(mino *Mino) []string {
 	for j := 0; j < board.height; j++ {
 		for i := 0; i < board.width; i++ {
 			switch mino.getMinoColorAtLocation(i, j) {
-			case blankColor:
+			case colorBlank:
 				switch board.colors[i][j] {
-				case blankColor:
+				case colorBlank:
 					lines[j] += "."
-				case termbox.ColorBlue:
+				case colorBlue:
 					lines[j] += "B"
-				case termbox.ColorCyan:
+				case colorCyan:
 					lines[j] += "C"
-				case termbox.ColorGreen:
+				case colorGreen:
 					lines[j] += "G"
-				case termbox.ColorMagenta:
+				case colorMagenta:
 					lines[j] += "M"
-				case termbox.ColorRed:
+				case colorRed:
 					lines[j] += "R"
-				case termbox.ColorWhite:
+				case colorWhite:
 					lines[j] += "W"
-				case termbox.ColorYellow:
+				case colorYellow:
 					lines[j] += "Y"
 				default:
 					lines[j] += "U"
 				}
-			case termbox.ColorBlue:
+			case colorBlue:
 				lines[j] += "b"
-			case termbox.ColorCyan:
+			case colorCyan:
 				lines[j] += "c"
-			case termbox.ColorGreen:
+			case colorGreen:
 				lines[j] += "g"
-			case termbox.ColorMagenta:
+			case colorMagenta:
 				lines[j] += "m"
-			case termbox.ColorRed:
+			case colorRed:
 				lines[j] += "r"
-			case termbox.ColorWhite:
+			case colorWhite:
 				lines[j] += "w"
-			case termbox.ColorYellow:
+			case colorYellow:
 				lines[j] += "y"
 			default:
 				lines[j] += "u"

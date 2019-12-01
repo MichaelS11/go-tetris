@@ -5,17 +5,24 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/nsf/termbox-go"
+	"github.com/gdamore/tcell"
 )
 
 // NewView creates a new view
 func NewView() {
-	err := termbox.Init()
+	var err error
+
+	screen, err = tcell.NewScreen()
 	if err != nil {
-		panic(err)
+		logger.Fatal("NewScreen error:", err)
 	}
-	termbox.SetInputMode(termbox.InputEsc)
-	termbox.Flush()
+	err = screen.Init()
+	if err != nil {
+		logger.Fatal("screen Init error:", err)
+	}
+
+	screen.Clear()
+
 	view = &View{}
 }
 
@@ -23,74 +30,80 @@ func NewView() {
 func (view *View) Stop() {
 	logger.Println("View Stop start")
 
-	termbox.Close()
+	screen.Fini()
 
 	logger.Println("View Stop end")
 }
 
-// RefreshScreen refreshs the updated view to the screen
+// RefreshScreen refreshes the updated view to the screen
 func (view *View) RefreshScreen() {
-	termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
 
-	view.drawBoardBoarder()
+	switch engine.mode {
 
-	if engine.editMode {
+	case engineModeRun, engineModeRunWithAI:
+		view.drawBoardBoarder()
+		view.drawPreviewBoarder()
+		view.drawTexts()
+		board.DrawBoard()
+		board.DrawPreviewMino()
+		board.DrawDropMino()
+		board.DrawCurrentMino()
+		screen.Show()
+
+	case engineModePaused:
+		screen.Fill(' ', tcell.StyleDefault.Foreground(tcell.ColorBlack).Background(tcell.ColorBlack))
+		view.drawBoardBoarder()
+		view.drawPreviewBoarder()
+		view.drawTexts()
+		view.drawPaused()
+		screen.Show()
+
+	case engineModeGameOver:
+		view.drawBoardBoarder()
+		view.drawPreviewBoarder()
+		view.drawTexts()
+		view.drawGameOver()
+		view.drawRankingScores()
+		screen.Show()
+
+	case engineModePreview:
+		screen.Fill(' ', tcell.StyleDefault.Foreground(tcell.ColorBlack).Background(tcell.ColorBlack))
+		view.drawBoardBoarder()
+		view.drawPreviewBoarder()
+		view.drawTexts()
+		board.DrawBoard()
+		view.drawGameOver()
+		screen.Show()
+
+	case engineModeEdit:
+		screen.Fill(' ', tcell.StyleDefault.Foreground(tcell.ColorBlack).Background(tcell.ColorBlack))
+		view.drawBoardBoarder()
+		board.DrawBoard()
 		if edit.boardSize {
-			board.DrawBoard()
 			view.drawEditTextsBoardSize()
 		} else {
-			board.DrawBoard()
 			edit.DrawCursor()
 			view.drawEditTexts()
 		}
-		termbox.Flush()
-		return
+		screen.Show()
 	}
 
-	view.drawPreviewBoarder()
-	view.drawTexts()
-
-	if engine.previewBoard {
-		board.DrawBoard()
-		view.drawGameOver()
-		termbox.Flush()
-		return
-	}
-
-	if engine.gameOver {
-		view.drawGameOver()
-		view.drawRankingScores()
-		termbox.Flush()
-		return
-	}
-
-	if engine.paused {
-		view.drawPaused()
-		termbox.Flush()
-		return
-	}
-
-	board.DrawBoard()
-	board.DrawPreviewMino()
-	board.DrawDropMino()
-	board.DrawCurrentMino()
-	termbox.Flush()
 }
 
-// drawBoard draws the board boarder
+// drawBoardBoarder draws the board boarder
 func (view *View) drawBoardBoarder() {
-	// playing board
 	xOffset := boardXOffset
 	yOffset := boardYOffset
 	xEnd := boardXOffset + board.width*2 + 4
 	yEnd := boardYOffset + board.height + 2
+	styleBoarder := tcell.StyleDefault.Foreground(tcell.ColorBlack).Background(tcell.ColorLightGray)
+	styleBoard := tcell.StyleDefault.Foreground(tcell.ColorLightGray).Background(tcell.ColorBlack)
 	for x := xOffset; x < xEnd; x++ {
 		for y := yOffset; y < yEnd; y++ {
-			if x == xOffset || x == xOffset+1 || x == xEnd-1 || x == xEnd-2 ||
-				y == yOffset || y == yEnd-1 {
-				termbox.SetCell(x, y, ' ', termbox.ColorDefault, termbox.ColorWhite)
+			if x == xOffset || x == xOffset+1 || x == xEnd-1 || x == xEnd-2 || y == yOffset || y == yEnd-1 {
+				screen.SetContent(x, y, ' ', nil, styleBoarder)
 			} else {
-				termbox.SetCell(x, y, ' ', termbox.ColorDefault, termbox.ColorBlack)
+				screen.SetContent(x, y, ' ', nil, styleBoard)
 			}
 		}
 	}
@@ -102,13 +115,14 @@ func (view *View) drawPreviewBoarder() {
 	yOffset := boardYOffset
 	xEnd := xOffset + 14
 	yEnd := yOffset + 6
+	styleBoarder := tcell.StyleDefault.Foreground(tcell.ColorBlack).Background(tcell.ColorLightGray)
+	styleBoard := tcell.StyleDefault.Foreground(tcell.ColorLightGray).Background(tcell.ColorBlack)
 	for x := xOffset; x < xEnd; x++ {
 		for y := yOffset; y < yEnd; y++ {
-			if x == xOffset || x == xOffset+1 || x == xEnd-1 || x == xEnd-2 ||
-				y == yOffset || y == yEnd-1 {
-				termbox.SetCell(x, y, ' ', termbox.ColorDefault, termbox.ColorWhite)
+			if x == xOffset || x == xOffset+1 || x == xEnd-1 || x == xEnd-2 || y == yOffset || y == yEnd-1 {
+				screen.SetContent(x, y, ' ', nil, styleBoarder)
 			} else {
-				termbox.SetCell(x, y, ' ', termbox.ColorDefault, termbox.ColorBlack)
+				screen.SetContent(x, y, ' ', nil, styleBoard)
 			}
 		}
 	}
@@ -120,39 +134,39 @@ func (view *View) drawTexts() {
 	xOffset := boardXOffset + board.width*2 + 8
 	yOffset := boardYOffset + 7
 
-	view.drawText(xOffset, yOffset, "SCORE:", termbox.ColorWhite, termbox.ColorBlue)
-	view.drawText(xOffset+7, yOffset, fmt.Sprintf("%7d", engine.score), termbox.ColorBlack, termbox.ColorWhite)
+	view.drawText(xOffset, yOffset, "SCORE:", tcell.ColorLightGray, tcell.ColorDarkBlue)
+	view.drawText(xOffset+7, yOffset, fmt.Sprintf("%7d", engine.score), tcell.ColorBlack, tcell.ColorLightGray)
 
 	yOffset += 2
 
-	view.drawText(xOffset, yOffset, "LINES:", termbox.ColorWhite, termbox.ColorBlue)
-	view.drawText(xOffset+7, yOffset, fmt.Sprintf("%7d", engine.deleteLines), termbox.ColorBlack, termbox.ColorWhite)
+	view.drawText(xOffset, yOffset, "LINES:", tcell.ColorLightGray, tcell.ColorDarkBlue)
+	view.drawText(xOffset+7, yOffset, fmt.Sprintf("%7d", engine.deleteLines), tcell.ColorBlack, tcell.ColorLightGray)
 
 	yOffset += 2
 
-	view.drawText(xOffset, yOffset, "LEVEL:", termbox.ColorWhite, termbox.ColorBlue)
-	view.drawText(xOffset+7, yOffset, fmt.Sprintf("%4d", engine.level), termbox.ColorBlack, termbox.ColorWhite)
+	view.drawText(xOffset, yOffset, "LEVEL:", tcell.ColorLightGray, tcell.ColorDarkBlue)
+	view.drawText(xOffset+7, yOffset, fmt.Sprintf("%4d", engine.level), tcell.ColorBlack, tcell.ColorLightGray)
 
 	yOffset += 2
 
 	// ascii arrow characters add extra two spaces
-	view.drawText(xOffset, yOffset, "←  - left", termbox.ColorWhite, termbox.ColorBlack)
+	view.drawText(xOffset, yOffset, "←  - left", tcell.ColorLightGray, tcell.ColorBlack)
 	yOffset++
-	view.drawText(xOffset, yOffset, "→  - right", termbox.ColorWhite, termbox.ColorBlack)
+	view.drawText(xOffset, yOffset, "→  - right", tcell.ColorLightGray, tcell.ColorBlack)
 	yOffset++
-	view.drawText(xOffset, yOffset, "↓  - soft drop", termbox.ColorWhite, termbox.ColorBlack)
+	view.drawText(xOffset, yOffset, "↓  - soft drop", tcell.ColorLightGray, tcell.ColorBlack)
 	yOffset++
-	view.drawText(xOffset, yOffset, "↑  - hard drop", termbox.ColorWhite, termbox.ColorBlack)
+	view.drawText(xOffset, yOffset, "↑  - hard drop", tcell.ColorLightGray, tcell.ColorBlack)
 	yOffset++
-	view.drawText(xOffset, yOffset, "sbar - hard drop", termbox.ColorWhite, termbox.ColorBlack)
+	view.drawText(xOffset, yOffset, "sbar - hard drop", tcell.ColorLightGray, tcell.ColorBlack)
 	yOffset++
-	view.drawText(xOffset, yOffset, "z    - rotate left", termbox.ColorWhite, termbox.ColorBlack)
+	view.drawText(xOffset, yOffset, "z    - rotate left", tcell.ColorLightGray, tcell.ColorBlack)
 	yOffset++
-	view.drawText(xOffset, yOffset, "x    - rotate right", termbox.ColorWhite, termbox.ColorBlack)
+	view.drawText(xOffset, yOffset, "x    - rotate right", tcell.ColorLightGray, tcell.ColorBlack)
 	yOffset++
-	view.drawText(xOffset, yOffset, "p    - pause", termbox.ColorWhite, termbox.ColorBlack)
+	view.drawText(xOffset, yOffset, "p    - pause", tcell.ColorLightGray, tcell.ColorBlack)
 	yOffset++
-	view.drawText(xOffset, yOffset, "q    - quit", termbox.ColorWhite, termbox.ColorBlack)
+	view.drawText(xOffset, yOffset, "q    - quit", tcell.ColorLightGray, tcell.ColorBlack)
 }
 
 // drawEditTexts draws the edit text
@@ -160,58 +174,58 @@ func (view *View) drawEditTexts() {
 	xOffset := boardXOffset + board.width*2 + 8
 	yOffset := boardYOffset
 
-	view.drawText(xOffset, yOffset, "Name:", termbox.ColorWhite, termbox.ColorBlue)
-	view.drawText(xOffset+7, yOffset, boards[board.boardsIndex].name, termbox.ColorBlack, termbox.ColorWhite)
+	view.drawText(xOffset, yOffset, "Name:", tcell.ColorLightGray, tcell.ColorDarkBlue)
+	view.drawText(xOffset+7, yOffset, boards[board.boardsIndex].name, tcell.ColorBlack, tcell.ColorLightGray)
 	yOffset++
-	view.drawText(xOffset, yOffset, "Saved:", termbox.ColorWhite, termbox.ColorBlue)
+	view.drawText(xOffset, yOffset, "Saved:", tcell.ColorLightGray, tcell.ColorDarkBlue)
 	if edit.saved {
-		view.drawText(xOffset+7, yOffset, "yes", termbox.ColorBlack, termbox.ColorWhite)
+		view.drawText(xOffset+7, yOffset, "yes", tcell.ColorBlack, tcell.ColorLightGray)
 	} else {
-		view.drawText(xOffset+7, yOffset, "no", termbox.ColorBlack, termbox.ColorWhite)
+		view.drawText(xOffset+7, yOffset, "no", tcell.ColorBlack, tcell.ColorLightGray)
 	}
 
 	yOffset += 2
 
 	// ascii arrow characters add extra two spaces
-	view.drawText(xOffset, yOffset, "← - left", termbox.ColorWhite, termbox.ColorBlack)
+	view.drawText(xOffset, yOffset, "← - left", tcell.ColorLightGray, tcell.ColorBlack)
 	yOffset++
-	view.drawText(xOffset, yOffset, "→ - right", termbox.ColorWhite, termbox.ColorBlack)
+	view.drawText(xOffset, yOffset, "→ - right", tcell.ColorLightGray, tcell.ColorBlack)
 	yOffset++
-	view.drawText(xOffset, yOffset, "↓ - down", termbox.ColorWhite, termbox.ColorBlack)
+	view.drawText(xOffset, yOffset, "↓ - down", tcell.ColorLightGray, tcell.ColorBlack)
 	yOffset++
-	view.drawText(xOffset, yOffset, "↑ - up", termbox.ColorWhite, termbox.ColorBlack)
+	view.drawText(xOffset, yOffset, "↑ - up", tcell.ColorLightGray, tcell.ColorBlack)
 	yOffset++
-	view.drawText(xOffset, yOffset, "z   - rotate left", termbox.ColorWhite, termbox.ColorBlack)
+	view.drawText(xOffset, yOffset, "z   - rotate left", tcell.ColorLightGray, tcell.ColorBlack)
 	yOffset++
-	view.drawText(xOffset, yOffset, "x   - rotate right", termbox.ColorWhite, termbox.ColorBlack)
+	view.drawText(xOffset, yOffset, "x   - rotate right", tcell.ColorLightGray, tcell.ColorBlack)
 	yOffset++
-	view.drawText(xOffset, yOffset, "c   - cyan", termbox.ColorWhite, termbox.ColorBlack)
+	view.drawText(xOffset, yOffset, "c   - cyan", tcell.ColorLightGray, tcell.ColorBlack)
 	yOffset++
-	view.drawText(xOffset, yOffset, "b   - blue", termbox.ColorWhite, termbox.ColorBlack)
+	view.drawText(xOffset, yOffset, "b   - blue", tcell.ColorLightGray, tcell.ColorBlack)
 	yOffset++
-	view.drawText(xOffset, yOffset, "w   - white", termbox.ColorWhite, termbox.ColorBlack)
+	view.drawText(xOffset, yOffset, "w   - white", tcell.ColorLightGray, tcell.ColorBlack)
 	yOffset++
-	view.drawText(xOffset, yOffset, "e   - yellow", termbox.ColorWhite, termbox.ColorBlack)
+	view.drawText(xOffset, yOffset, "e   - yellow", tcell.ColorLightGray, tcell.ColorBlack)
 	yOffset++
-	view.drawText(xOffset, yOffset, "g   - green", termbox.ColorWhite, termbox.ColorBlack)
+	view.drawText(xOffset, yOffset, "g   - green", tcell.ColorLightGray, tcell.ColorBlack)
 	yOffset++
-	view.drawText(xOffset, yOffset, "a   - magenta", termbox.ColorWhite, termbox.ColorBlack)
+	view.drawText(xOffset, yOffset, "a   - magenta", tcell.ColorLightGray, tcell.ColorBlack)
 	yOffset++
-	view.drawText(xOffset, yOffset, "r   - red", termbox.ColorWhite, termbox.ColorBlack)
+	view.drawText(xOffset, yOffset, "r   - red", tcell.ColorLightGray, tcell.ColorBlack)
 	yOffset++
-	view.drawText(xOffset, yOffset, "f   - free", termbox.ColorWhite, termbox.ColorBlack)
+	view.drawText(xOffset, yOffset, "f   - free", tcell.ColorLightGray, tcell.ColorBlack)
 	yOffset++
-	view.drawText(xOffset, yOffset, "ctrl b - change board size", termbox.ColorWhite, termbox.ColorBlack)
+	view.drawText(xOffset, yOffset, "ctrl b - change board size", tcell.ColorLightGray, tcell.ColorBlack)
 	yOffset++
-	view.drawText(xOffset, yOffset, "ctrl s - save board", termbox.ColorWhite, termbox.ColorBlack)
+	view.drawText(xOffset, yOffset, "ctrl s - save board", tcell.ColorLightGray, tcell.ColorBlack)
 	yOffset++
-	view.drawText(xOffset, yOffset, "ctrl n - save board as new", termbox.ColorWhite, termbox.ColorBlack)
+	view.drawText(xOffset, yOffset, "ctrl n - save board as new", tcell.ColorLightGray, tcell.ColorBlack)
 	yOffset++
-	view.drawText(xOffset, yOffset, "ctrl k - delete board", termbox.ColorWhite, termbox.ColorBlack)
+	view.drawText(xOffset, yOffset, "ctrl k - delete board", tcell.ColorLightGray, tcell.ColorBlack)
 	yOffset++
-	view.drawText(xOffset, yOffset, "ctrl o - empty board", termbox.ColorWhite, termbox.ColorBlack)
+	view.drawText(xOffset, yOffset, "ctrl o - empty board", tcell.ColorLightGray, tcell.ColorBlack)
 	yOffset++
-	view.drawText(xOffset, yOffset, "ctrl q - quit", termbox.ColorWhite, termbox.ColorBlack)
+	view.drawText(xOffset, yOffset, "ctrl q - quit", tcell.ColorLightGray, tcell.ColorBlack)
 }
 
 // drawEditTextsBoardSize draws the edit text for board size mode
@@ -219,119 +233,124 @@ func (view *View) drawEditTextsBoardSize() {
 	xOffset := boardXOffset + board.width*2 + 8
 	yOffset := boardYOffset
 
-	view.drawText(xOffset, yOffset, "Name:", termbox.ColorWhite, termbox.ColorBlue)
-	view.drawText(xOffset+7, yOffset, boards[board.boardsIndex].name, termbox.ColorBlack, termbox.ColorWhite)
+	view.drawText(xOffset, yOffset, "Name:", tcell.ColorLightGray, tcell.ColorDarkBlue)
+	view.drawText(xOffset+7, yOffset, boards[board.boardsIndex].name, tcell.ColorBlack, tcell.ColorLightGray)
 
 	yOffset += 2
 
-	view.drawText(xOffset, yOffset, "Size:", termbox.ColorWhite, termbox.ColorBlue)
-	view.drawText(xOffset+7, yOffset, fmt.Sprintf("%2d X %2d", edit.width, edit.height), termbox.ColorBlack, termbox.ColorWhite)
+	view.drawText(xOffset, yOffset, "Size:", tcell.ColorLightGray, tcell.ColorDarkBlue)
+	view.drawText(xOffset+7, yOffset, fmt.Sprintf("%2d X %2d", edit.width, edit.height), tcell.ColorBlack, tcell.ColorLightGray)
 
 	yOffset += 2
 
 	// ascii arrow characters add extra two spaces
-	view.drawText(xOffset, yOffset, "← - board width decrement", termbox.ColorWhite, termbox.ColorBlack)
+	view.drawText(xOffset, yOffset, "← - board width decrement", tcell.ColorLightGray, tcell.ColorBlack)
 	yOffset++
-	view.drawText(xOffset, yOffset, "→ - board width increment", termbox.ColorWhite, termbox.ColorBlack)
+	view.drawText(xOffset, yOffset, "→ - board width increment", tcell.ColorLightGray, tcell.ColorBlack)
 	yOffset++
-	view.drawText(xOffset, yOffset, "↓ - board height decrement", termbox.ColorWhite, termbox.ColorBlack)
+	view.drawText(xOffset, yOffset, "↓ - board height decrement", tcell.ColorLightGray, tcell.ColorBlack)
 	yOffset++
-	view.drawText(xOffset, yOffset, "↑ - board height increment", termbox.ColorWhite, termbox.ColorBlack)
+	view.drawText(xOffset, yOffset, "↑ - board height increment", tcell.ColorLightGray, tcell.ColorBlack)
 	yOffset++
-	view.drawText(xOffset, yOffset, "q   - done", termbox.ColorWhite, termbox.ColorBlack)
+	view.drawText(xOffset, yOffset, "q   - done", tcell.ColorLightGray, tcell.ColorBlack)
 }
 
 // DrawPreviewMinoBlock draws the preview mino
-func (view *View) DrawPreviewMinoBlock(x int, y int, color termbox.Attribute, rotation int, length int) {
-	char1 := ' '
-	char2 := ' '
+func (view *View) DrawPreviewMinoBlock(x int, y int, color tcell.Color, rotation int, length int) {
+	char1 := '█'
+	char2 := '█'
 	switch rotation {
 	case 0:
 		char1 = '▄'
 		char2 = '▄'
 	case 1:
-		char1 = '█'
+		char2 = ' '
 	case 2:
 		char1 = '▀'
 		char2 = '▀'
 	case 3:
-		char2 = '█'
+		char1 = ' '
 	}
 	xOffset := 2*x + 2*board.width + boardXOffset + 11 + (4 - length)
-	termbox.SetCell(xOffset, y+boardYOffset+2, char1, color, color^termbox.AttrBold)
-	termbox.SetCell(xOffset+1, y+boardYOffset+2, char2, color, color^termbox.AttrBold)
+	style := tcell.StyleDefault.Foreground(color).Background(color).Dim(true)
+	screen.SetContent(xOffset, y+boardYOffset+2, char1, nil, style)
+	screen.SetContent(xOffset+1, y+boardYOffset+2, char2, nil, style)
 }
 
 // DrawBlock draws a block
-func (view *View) DrawBlock(x int, y int, color termbox.Attribute, rotation int) {
-	char1 := ' '
-	char2 := ' '
+func (view *View) DrawBlock(x int, y int, color tcell.Color, rotation int) {
+	char1 := '█'
+	char2 := '█'
 	switch rotation {
 	case 0:
 		char1 = '▄'
 		char2 = '▄'
 	case 1:
-		char1 = '█'
+		char2 = ' '
 	case 2:
 		char1 = '▀'
 		char2 = '▀'
 	case 3:
-		char2 = '█'
+		char1 = ' '
 	}
-	if color == blankColor {
-		// blankColor means drop Mino
-		termbox.SetCell(2*x+boardXOffset+2, y+boardYOffset+1, char1, termbox.ColorBlack|termbox.AttrBold, termbox.ColorWhite)
-		termbox.SetCell(2*x+boardXOffset+3, y+boardYOffset+1, char2, termbox.ColorBlack|termbox.AttrBold, termbox.ColorWhite)
+	if color == colorBlank {
+		// colorBlank means drop Mino
+		style := tcell.StyleDefault.Foreground(tcell.ColorBlack).Background(tcell.ColorSilver).Bold(true)
+		screen.SetContent(2*x+boardXOffset+2, y+boardYOffset+1, char1, nil, style)
+		screen.SetContent(2*x+boardXOffset+3, y+boardYOffset+1, char2, nil, style)
 	} else {
-		termbox.SetCell(2*x+boardXOffset+2, y+boardYOffset+1, char1, color, color^termbox.AttrBold)
-		termbox.SetCell(2*x+boardXOffset+3, y+boardYOffset+1, char2, color, color^termbox.AttrBold)
+		style := tcell.StyleDefault.Foreground(color).Background(color).Dim(true)
+		screen.SetContent(2*x+boardXOffset+2, y+boardYOffset+1, char1, nil, style)
+		screen.SetContent(2*x+boardXOffset+3, y+boardYOffset+1, char2, nil, style)
 	}
 }
 
 // drawPaused draws Paused
 func (view *View) drawPaused() {
 	yOffset := (board.height+1)/2 + boardYOffset
-	view.drawTextCenter(yOffset, "Paused", termbox.ColorWhite, termbox.ColorBlack)
+	view.drawTextCenter(yOffset, "Paused", tcell.ColorWhite, tcell.ColorBlack)
 }
 
 // drawGameOver draws GAME OVER
 func (view *View) drawGameOver() {
 	yOffset := boardYOffset + 2
-	view.drawTextCenter(yOffset, " GAME OVER", termbox.ColorWhite, termbox.ColorBlack)
+	view.drawTextCenter(yOffset, " GAME OVER", tcell.ColorWhite, tcell.ColorBlack)
 	yOffset += 2
-	view.drawTextCenter(yOffset, "sbar for new game", termbox.ColorWhite, termbox.ColorBlack)
+	view.drawTextCenter(yOffset, "sbar for new game", tcell.ColorWhite, tcell.ColorBlack)
 
-	if engine.previewBoard {
+	if engine.mode == engineModePreview {
 		return
 	}
 
 	yOffset += 2
 	// ascii arrow characters add extra two spaces
-	view.drawTextCenter(yOffset, "←previous board", termbox.ColorWhite, termbox.ColorBlack)
+	view.drawTextCenter(yOffset, "←previous board", tcell.ColorWhite, tcell.ColorBlack)
 	yOffset += 2
-	view.drawTextCenter(yOffset, "→next board", termbox.ColorWhite, termbox.ColorBlack)
+	view.drawTextCenter(yOffset, "→next board", tcell.ColorWhite, tcell.ColorBlack)
 }
 
 // drawRankingScores draws the ranking scores
 func (view *View) drawRankingScores() {
 	yOffset := boardYOffset + 10
 	for index, line := range engine.ranking.scores {
-		view.drawTextCenter(yOffset+index, fmt.Sprintf("%1d: %6d", index+1, line), termbox.ColorWhite, termbox.ColorBlack)
+		view.drawTextCenter(yOffset+index, fmt.Sprintf("%1d: %6d", index+1, line), tcell.ColorWhite, tcell.ColorBlack)
 	}
 }
 
 // drawText draws the provided text
-func (view *View) drawText(x int, y int, text string, fg termbox.Attribute, bg termbox.Attribute) {
+func (view *View) drawText(x int, y int, text string, fg tcell.Color, bg tcell.Color) {
+	style := tcell.StyleDefault.Foreground(fg).Background(bg)
 	for index, char := range text {
-		termbox.SetCell(x+index, y, rune(char), fg, bg)
+		screen.SetContent(x+index, y, rune(char), nil, style)
 	}
 }
 
 // drawTextCenter draws text in the center of the board
-func (view *View) drawTextCenter(y int, text string, fg termbox.Attribute, bg termbox.Attribute) {
+func (view *View) drawTextCenter(y int, text string, fg tcell.Color, bg tcell.Color) {
 	xOffset := board.width - (len(text)+1)/2 + boardXOffset + 2
+	style := tcell.StyleDefault.Foreground(fg).Background(bg)
 	for index, char := range text {
-		termbox.SetCell(index+xOffset, y, rune(char), fg, bg)
+		screen.SetContent(index+xOffset, y, rune(char), nil, style)
 	}
 }
 
@@ -341,9 +360,9 @@ func (view *View) ShowDeleteAnimation(lines []int) {
 
 	for times := 0; times < 3; times++ {
 		for _, y := range lines {
-			view.colorizeLine(y, termbox.ColorCyan)
+			view.colorizeLine(y, tcell.ColorLightGray)
 		}
-		termbox.Flush()
+		screen.Show()
 		time.Sleep(140 * time.Millisecond)
 
 		view.RefreshScreen()
@@ -357,20 +376,23 @@ func (view *View) ShowGameOverAnimation() {
 
 	switch rand.Intn(3) {
 	case 0:
+		logger.Println("View ShowGameOverAnimation case 0")
 		for y := board.height - 1; y >= 0; y-- {
-			view.colorizeLine(y, termbox.ColorBlack)
-			termbox.Flush()
+			view.colorizeLine(y, tcell.ColorLightGray)
+			screen.Show()
 			time.Sleep(60 * time.Millisecond)
 		}
 
 	case 1:
+		logger.Println("View ShowGameOverAnimation case 1")
 		for y := 0; y < board.height; y++ {
-			view.colorizeLine(y, termbox.ColorBlack)
-			termbox.Flush()
+			view.colorizeLine(y, tcell.ColorLightGray)
+			screen.Show()
 			time.Sleep(60 * time.Millisecond)
 		}
 
 	case 2:
+		logger.Println("View ShowGameOverAnimation case 2")
 		sleepTime := 50 * time.Millisecond
 		topStartX := boardXOffset + 3
 		topEndX := board.width*2 + boardXOffset + 1
@@ -384,33 +406,34 @@ func (view *View) ShowGameOverAnimation() {
 		leftStartY := rightEndY - 1
 		leftEndY := rightStartY - 1
 		leftX := boardXOffset + 2
+		style := tcell.StyleDefault.Foreground(tcell.ColorLightGray).Background(tcell.ColorLightGray)
 
 		for topStartX <= topEndX && rightStartY <= rightEndY {
 			for x := topStartX; x < topEndX; x++ {
-				termbox.SetCell(x, topY, ' ', termbox.ColorBlack, termbox.ColorBlack)
+				screen.SetContent(x, topY, ' ', nil, style)
 			}
 			topStartX++
 			topEndX--
 			topY++
 			for y := rightStartY; y < rightEndY; y++ {
-				termbox.SetCell(rightX, y, ' ', termbox.ColorBlack, termbox.ColorBlack)
+				screen.SetContent(rightX, y, ' ', nil, style)
 			}
 			rightStartY++
 			rightEndY--
 			rightX--
 			for x := bottomStartX; x > bottomEndX; x-- {
-				termbox.SetCell(x, bottomY, ' ', termbox.ColorBlack, termbox.ColorBlack)
+				screen.SetContent(x, bottomY, ' ', nil, style)
 			}
 			bottomStartX--
 			bottomEndX++
 			bottomY--
 			for y := leftStartY; y > leftEndY; y-- {
-				termbox.SetCell(leftX, y, ' ', termbox.ColorBlack, termbox.ColorBlack)
+				screen.SetContent(leftX, y, ' ', nil, style)
 			}
 			leftStartY--
 			leftEndY++
 			leftX++
-			termbox.Flush()
+			screen.Show()
 			time.Sleep(sleepTime)
 			sleepTime += 4 * time.Millisecond
 		}
@@ -420,16 +443,21 @@ func (view *View) ShowGameOverAnimation() {
 }
 
 // colorizeLine changes the color of a line
-func (view *View) colorizeLine(y int, color termbox.Attribute) {
+func (view *View) colorizeLine(y int, color tcell.Color) {
+	style := tcell.StyleDefault.Foreground(tcell.ColorBlack).Background(color)
 	for x := 0; x < board.width; x++ {
-		termbox.SetCell(x*2+boardXOffset+2, y+boardYOffset+1, ' ', termbox.ColorDefault, color)
-		termbox.SetCell(x*2+boardXOffset+3, y+boardYOffset+1, ' ', termbox.ColorDefault, color)
+		screen.SetContent(x*2+boardXOffset+2, y+boardYOffset+1, ' ', nil, style)
+		screen.SetContent(x*2+boardXOffset+3, y+boardYOffset+1, ' ', nil, style)
 	}
 }
 
 // DrawCursor draws current cursor location
-func (view *View) DrawCursor(x int, y int, color termbox.Attribute) {
-	termbox.SetCell(x*2+boardXOffset+2, y+boardYOffset+1, '◄', color^termbox.AttrBold, termbox.ColorBlack^termbox.AttrBold)
-	termbox.SetCell(x*2+boardXOffset+3, y+boardYOffset+1, '►', color^termbox.AttrBold, termbox.ColorBlack^termbox.AttrBold)
-	termbox.Flush()
+func (view *View) DrawCursor(x int, y int, color tcell.Color) {
+	style := tcell.StyleDefault.Foreground(color).Background(tcell.ColorBlack)
+	if color == colorBlank {
+		style = tcell.StyleDefault.Foreground(tcell.ColorBlack).Background(tcell.ColorLightGrey)
+	}
+	screen.SetContent(x*2+boardXOffset+2, y+boardYOffset+1, '◄', nil, style)
+	screen.SetContent(x*2+boardXOffset+3, y+boardYOffset+1, '►', nil, style)
+	screen.Show()
 }

@@ -3,45 +3,45 @@ package main
 import (
 	"math/rand"
 
-	"github.com/nsf/termbox-go"
+	"github.com/gdamore/tcell"
 )
 
 // NewMinos creates the minos and minoBag
 func NewMinos() {
 	minoI := MinoBlocks{
-		[]termbox.Attribute{blankColor, termbox.ColorCyan, blankColor, blankColor},
-		[]termbox.Attribute{blankColor, termbox.ColorCyan, blankColor, blankColor},
-		[]termbox.Attribute{blankColor, termbox.ColorCyan, blankColor, blankColor},
-		[]termbox.Attribute{blankColor, termbox.ColorCyan, blankColor, blankColor},
+		[]tcell.Color{colorBlank, colorCyan, colorBlank, colorBlank},
+		[]tcell.Color{colorBlank, colorCyan, colorBlank, colorBlank},
+		[]tcell.Color{colorBlank, colorCyan, colorBlank, colorBlank},
+		[]tcell.Color{colorBlank, colorCyan, colorBlank, colorBlank},
 	}
 	minoJ := MinoBlocks{
-		[]termbox.Attribute{termbox.ColorBlue, termbox.ColorBlue, blankColor},
-		[]termbox.Attribute{blankColor, termbox.ColorBlue, blankColor},
-		[]termbox.Attribute{blankColor, termbox.ColorBlue, blankColor},
+		[]tcell.Color{colorBlue, colorBlue, colorBlank},
+		[]tcell.Color{colorBlank, colorBlue, colorBlank},
+		[]tcell.Color{colorBlank, colorBlue, colorBlank},
 	}
 	minoL := MinoBlocks{
-		[]termbox.Attribute{blankColor, termbox.ColorWhite, blankColor},
-		[]termbox.Attribute{blankColor, termbox.ColorWhite, blankColor},
-		[]termbox.Attribute{termbox.ColorWhite, termbox.ColorWhite, blankColor},
+		[]tcell.Color{colorBlank, colorWhite, colorBlank},
+		[]tcell.Color{colorBlank, colorWhite, colorBlank},
+		[]tcell.Color{colorWhite, colorWhite, colorBlank},
 	}
 	minoO := MinoBlocks{
-		[]termbox.Attribute{termbox.ColorYellow, termbox.ColorYellow},
-		[]termbox.Attribute{termbox.ColorYellow, termbox.ColorYellow},
+		[]tcell.Color{colorYellow, colorYellow},
+		[]tcell.Color{colorYellow, colorYellow},
 	}
 	minoS := MinoBlocks{
-		[]termbox.Attribute{blankColor, termbox.ColorGreen, blankColor},
-		[]termbox.Attribute{termbox.ColorGreen, termbox.ColorGreen, blankColor},
-		[]termbox.Attribute{termbox.ColorGreen, blankColor, blankColor},
+		[]tcell.Color{colorBlank, colorGreen, colorBlank},
+		[]tcell.Color{colorGreen, colorGreen, colorBlank},
+		[]tcell.Color{colorGreen, colorBlank, colorBlank},
 	}
 	minoT := MinoBlocks{
-		[]termbox.Attribute{blankColor, termbox.ColorMagenta, blankColor},
-		[]termbox.Attribute{termbox.ColorMagenta, termbox.ColorMagenta, blankColor},
-		[]termbox.Attribute{blankColor, termbox.ColorMagenta, blankColor},
+		[]tcell.Color{colorBlank, colorMagenta, colorBlank},
+		[]tcell.Color{colorMagenta, colorMagenta, colorBlank},
+		[]tcell.Color{colorBlank, colorMagenta, colorBlank},
 	}
 	minoZ := MinoBlocks{
-		[]termbox.Attribute{termbox.ColorRed, blankColor, blankColor},
-		[]termbox.Attribute{termbox.ColorRed, termbox.ColorRed, blankColor},
-		[]termbox.Attribute{blankColor, termbox.ColorRed, blankColor},
+		[]tcell.Color{colorRed, colorBlank, colorBlank},
+		[]tcell.Color{colorRed, colorRed, colorBlank},
+		[]tcell.Color{colorBlank, colorRed, colorBlank},
 	}
 
 	var minoRotationI MinoRotation
@@ -91,7 +91,7 @@ func minosCloneRotateRight(minoBlocks MinoBlocks) MinoBlocks {
 	length := len(minoBlocks)
 	newMinoBlocks := make(MinoBlocks, length, length)
 	for i := 0; i < length; i++ {
-		newMinoBlocks[i] = make([]termbox.Attribute, length, length)
+		newMinoBlocks[i] = make([]tcell.Color, length, length)
 	}
 
 	for i := 0; i < length; i++ {

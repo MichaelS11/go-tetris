@@ -3,7 +3,7 @@ package main
 import (
 	"time"
 
-	"github.com/nsf/termbox-go"
+	"github.com/gdamore/tcell"
 )
 
 // NewEdit creates a new edit mode
@@ -72,6 +72,7 @@ func (edit *Edit) BoardHeightDecrement() {
 // ChangeBoardSize create new board
 func (edit *Edit) ChangeBoardSize() {
 	ChangeBoardSize(edit.width, edit.height)
+	edit.saved = false
 	edit.boardSize = false
 }
 
@@ -125,7 +126,7 @@ func (edit *Edit) CursorLeft() {
 }
 
 // SetColor sets the board color
-func (edit *Edit) SetColor(color termbox.Attribute) {
+func (edit *Edit) SetColor(color tcell.Color) {
 	if edit.moved {
 		edit.moved = false
 	}
@@ -181,7 +182,7 @@ func (edit *Edit) SaveBoard() {
 // SaveBoardNew save board as new board
 func (edit *Edit) SaveBoardNew() {
 	aBoards := Boards{name: time.Now().Format("Jan 2 3:4:5")}
-	aBoards.colors = make([][]termbox.Attribute, len(board.colors))
+	aBoards.colors = make([][]tcell.Color, len(board.colors))
 	for i := 0; i < len(board.colors); i++ {
 		aBoards.colors[i] = append(aBoards.colors[i], board.colors[i]...)
 	}

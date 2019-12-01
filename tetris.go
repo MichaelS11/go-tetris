@@ -13,7 +13,7 @@ func main() {
 	logger = log.New(os.Stderr, "", log.Ldate|log.Ltime|log.LUTC|log.Llongfile)
 	logFile, err := os.OpenFile(baseDir+"/go-tetris.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0644)
 	if err != nil {
-		logger.Fatal("error opening log file:", err)
+		logger.Fatal("opening log file error:", err)
 	}
 	defer logFile.Close()
 	logger.SetOutput(logFile)
@@ -22,21 +22,21 @@ func main() {
 
 	err = loadBoards()
 	if err != nil {
-		logger.Fatal("error loading internal boards:", err)
+		logger.Fatal("loading internal boards error:", err)
 	}
 
 	err = loadUserBoards()
 	if err != nil {
-		logger.Fatal("error loading user boards:", err)
+		logger.Fatal("loading user boards error:", err)
 	}
 
+	NewView()
 	NewMinos()
 	NewBoard()
-	NewView()
-	NewEngine()
 	NewEdit()
+	NewEngine()
 
-	engine.Run()
+	engine.Start()
 
 	view.Stop()
 }

@@ -1,9 +1,5 @@
 package main
 
-import (
-	"github.com/nsf/termbox-go"
-)
-
 // NewAi creates a new AI
 func NewAi() *Ai {
 	ai := Ai{}
@@ -54,15 +50,15 @@ func (ai *Ai) GetBestQueue() {
 	}
 
 	switch currentMino.minoRotation[0][1][1] {
-	case termbox.ColorCyan, termbox.ColorGreen, termbox.ColorRed:
+	case colorCyan, colorGreen, colorRed:
 		rotations1 = 2
-	case termbox.ColorYellow:
+	case colorYellow:
 		rotations1 = 1
 	}
 	switch previewMino.minoRotation[0][1][1] {
-	case termbox.ColorCyan, termbox.ColorGreen, termbox.ColorRed:
+	case colorCyan, colorGreen, colorRed:
 		rotations2 = 2
-	case termbox.ColorYellow:
+	case colorYellow:
 		rotations2 = 1
 	}
 
@@ -190,7 +186,7 @@ func (board *Board) boardStatsWithMinos(mino1 *Mino, mino2 *Mino) (fullLines int
 	for j = 0; j < board.height; j++ {
 		board.fullLinesY[j] = true
 		for i = 0; i < board.width; i++ {
-			if board.colors[i][j] == blankColor && !mino1.isMinoAtLocation(i, j) && !mino2.isMinoAtLocation(i, j) {
+			if board.colors[i][j] == colorBlank && !mino1.isMinoAtLocation(i, j) && !mino2.isMinoAtLocation(i, j) {
 				board.fullLinesY[j] = false
 				break
 			}
@@ -210,7 +206,7 @@ func (board *Board) boardStatsWithMinos(mino1 *Mino, mino2 *Mino) (fullLines int
 			if board.fullLinesY[j] {
 				fullLinesFound++
 			} else {
-				if board.colors[i][j] != blankColor || mino1.isMinoAtLocation(i, j) || mino2.isMinoAtLocation(i, j) {
+				if board.colors[i][j] != colorBlank || mino1.isMinoAtLocation(i, j) || mino2.isMinoAtLocation(i, j) {
 					found = j
 					break
 				}
@@ -229,7 +225,7 @@ func (board *Board) boardStatsWithMinos(mino1 *Mino, mino2 *Mino) (fullLines int
 		foundLast = found + fullLines - fullLinesFound
 
 		for j++; j < board.height; j++ {
-			if board.colors[i][j] == blankColor && !mino1.isMinoAtLocation(i, j) && !mino2.isMinoAtLocation(i, j) {
+			if board.colors[i][j] == colorBlank && !mino1.isMinoAtLocation(i, j) && !mino2.isMinoAtLocation(i, j) {
 				holes++
 			}
 		}

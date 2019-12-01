@@ -4,11 +4,10 @@ import (
 	"log"
 	"time"
 
-	"github.com/nsf/termbox-go"
+	"github.com/gdamore/tcell"
 )
 
 const (
-	blankColor       = termbox.ColorBlack
 	boardXOffset     = 4
 	boardYOffset     = 2
 	aiTickDivider    = 8
@@ -21,13 +20,32 @@ const (
 	MinoCurrent = iota
 	// MinoDrop is for the drop mino
 	MinoDrop = iota
+
+	colorBlank   = tcell.ColorBlack
+	colorCyan    = tcell.ColorAqua    // I
+	colorBlue    = tcell.ColorBlue    // J
+	colorWhite   = tcell.ColorWhite   // L
+	colorYellow  = tcell.ColorYellow  // O
+	colorGreen   = tcell.ColorLime    // S
+	colorMagenta = tcell.ColorFuchsia // T
+	colorRed     = tcell.ColorRed     // Z
+
+	engineModeRun engineMode = iota
+	engineModeRunWithAI
+	engineModeStopped
+	engineModeGameOver
+	engineModePaused
+	engineModePreview
+	engineModeEdit
 )
 
 type (
+	engineMode int
+
 	// MinoType is the type of mino
 	MinoType int
 	// MinoBlocks is the blocks of the mino
-	MinoBlocks [][]termbox.Attribute
+	MinoBlocks [][]tcell.Color
 	// MinoRotation is the rotation of the mino
 	MinoRotation [4]MinoBlocks
 
@@ -52,7 +70,7 @@ type (
 		boardsIndex  int
 		width        int
 		height       int
-		colors       [][]termbox.Attribute
+		colors       [][]tcell.Color
 		rotation     [][]int
 		previewMino  *Mino
 		currentMino  *Mino
@@ -63,7 +81,7 @@ type (
 	// Boards holds all the boards
 	Boards struct {
 		name     string
-		colors   [][]termbox.Attribute
+		colors   [][]tcell.Color
 		rotation [][]int
 	}
 
@@ -72,13 +90,6 @@ type (
 		Name     string
 		Mino     [][]string
 		Rotation [][]int
-	}
-
-	// KeyInput is the key input engine
-	KeyInput struct {
-		stopped      bool
-		chanStop     chan struct{}
-		chanKeyInput chan *termbox.Event
 	}
 
 	// View is the display engine
@@ -101,20 +112,17 @@ type (
 	Engine struct {
 		stopped      bool
 		chanStop     chan struct{}
-		keyInput     *KeyInput
+		chanEventKey chan *tcell.EventKey
 		ranking      *Ranking
 		timer        *time.Timer
 		tickTime     time.Duration
-		paused       bool
-		gameOver     bool
-		previewBoard bool
+		mode         engineMode
 		score        int
 		level        int
 		deleteLines  int
 		ai           *Ai
 		aiEnabled    bool
 		aiTimer      *time.Timer
-		editMode     bool
 	}
 
 	// Edit is the board edit mode
@@ -132,11 +140,22 @@ type (
 	Settings struct {
 		Boards []BoardsJSON
 	}
+
+	// EventGame is an game event
+	EventGame struct {
+		when time.Time
+	}
 )
+
+// When returns event when
+func (EventGame *EventGame) When() time.Time {
+	return EventGame.when
+}
 
 var (
 	baseDir string
 	logger  *log.Logger
+	screen  tcell.Screen
 	minos   *Minos
 	board   *Board
 	view    *View

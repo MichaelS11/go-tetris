@@ -3,7 +3,7 @@ package main
 import (
 	"math/rand"
 
-	"github.com/nsf/termbox-go"
+	"github.com/gdamore/tcell"
 )
 
 // NewMino creates a new Mino
@@ -100,7 +100,7 @@ func (mino *Mino) ValidLocation(mustBeOnBoard bool) bool {
 	minoBlocks := mino.minoRotation[mino.rotation]
 	for i := 0; i < mino.length; i++ {
 		for j := 0; j < mino.length; j++ {
-			if minoBlocks[i][j] == blankColor {
+			if minoBlocks[i][j] == colorBlank {
 				continue
 			}
 			if !board.ValidBlockLocation(mino.x+i, mino.y+j, mustBeOnBoard) {
@@ -116,7 +116,7 @@ func (mino *Mino) SetOnBoard() {
 	minoBlocks := mino.minoRotation[mino.rotation]
 	for i := 0; i < mino.length; i++ {
 		for j := 0; j < mino.length; j++ {
-			if minoBlocks[i][j] != blankColor {
+			if minoBlocks[i][j] != colorBlank {
 				board.SetColor(mino.x+i, mino.y+j, minoBlocks[i][j], mino.rotation)
 			}
 		}
@@ -128,12 +128,12 @@ func (mino *Mino) DrawMino(minoType MinoType) {
 	minoBlocks := mino.minoRotation[mino.rotation]
 	for i := 0; i < mino.length; i++ {
 		for j := 0; j < mino.length; j++ {
-			if minoBlocks[i][j] != blankColor {
+			if minoBlocks[i][j] != colorBlank {
 				switch minoType {
 				case MinoPreview:
 					view.DrawPreviewMinoBlock(i, j, minoBlocks[i][j], mino.rotation, mino.length)
 				case MinoDrop:
-					view.DrawBlock(mino.x+i, mino.y+j, blankColor, mino.rotation)
+					view.DrawBlock(mino.x+i, mino.y+j, colorBlank, mino.rotation)
 				case MinoCurrent:
 					if ValidDisplayLocation(mino.x+i, mino.y+j) {
 						view.DrawBlock(mino.x+i, mino.y+j, minoBlocks[i][j], mino.rotation)
@@ -149,7 +149,7 @@ func (mino *Mino) minoOverlap(mino1 *Mino) bool {
 	minoBlocks := mino.minoRotation[mino.rotation]
 	for i := 0; i < mino.length; i++ {
 		for j := 0; j < mino.length; j++ {
-			if minoBlocks[i][j] == blankColor {
+			if minoBlocks[i][j] == colorBlank {
 				continue
 			}
 			if mino1.isMinoAtLocation(mino.x+i, mino.y+j) {
@@ -168,7 +168,7 @@ func (mino *Mino) isMinoAtLocation(x int, y int) bool {
 		return false
 	}
 
-	if mino.minoRotation[mino.rotation][xIndex][yIndex] != blankColor {
+	if mino.minoRotation[mino.rotation][xIndex][yIndex] != colorBlank {
 		return true
 	}
 
@@ -176,11 +176,11 @@ func (mino *Mino) isMinoAtLocation(x int, y int) bool {
 }
 
 // getMinoColorAtLocation gets the mino color at a location
-func (mino *Mino) getMinoColorAtLocation(x int, y int) termbox.Attribute {
+func (mino *Mino) getMinoColorAtLocation(x int, y int) tcell.Color {
 	xIndex := x - mino.x
 	yIndex := y - mino.y
 	if xIndex < 0 || xIndex >= mino.length || yIndex < 0 || yIndex >= mino.length {
-		return blankColor
+		return colorBlank
 	}
 
 	minoBlocks := mino.minoRotation[mino.rotation]

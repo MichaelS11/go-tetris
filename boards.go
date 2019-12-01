@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/nsf/termbox-go"
+	"github.com/gdamore/tcell"
 )
 
 // loadBoards loads the internal boards
@@ -24,29 +24,29 @@ func loadBoards() error {
 
 	for boardNum, boardLoad := range boardsJSON {
 		aBoards := Boards{name: boardLoad.Name}
-		aBoards.colors = make([][]termbox.Attribute, len(boardLoad.Mino))
+		aBoards.colors = make([][]tcell.Color, len(boardLoad.Mino))
 		aBoards.rotation = boardLoad.Rotation
 
 		for i := 0; i < len(boardLoad.Mino); i++ {
-			aBoards.colors[i] = make([]termbox.Attribute, len(boardLoad.Mino[i]))
+			aBoards.colors[i] = make([]tcell.Color, len(boardLoad.Mino[i]))
 			for j := 0; j < len(boardLoad.Mino[i]); j++ {
 				switch boardLoad.Mino[i][j] {
 				case "b":
-					aBoards.colors[i][j] = blankColor
+					aBoards.colors[i][j] = colorBlank
 				case "i":
-					aBoards.colors[i][j] = termbox.ColorCyan
+					aBoards.colors[i][j] = colorCyan
 				case "j":
-					aBoards.colors[i][j] = termbox.ColorBlue
+					aBoards.colors[i][j] = colorBlue
 				case "l":
-					aBoards.colors[i][j] = termbox.ColorWhite
+					aBoards.colors[i][j] = colorWhite
 				case "o":
-					aBoards.colors[i][j] = termbox.ColorYellow
+					aBoards.colors[i][j] = colorYellow
 				case "s":
-					aBoards.colors[i][j] = termbox.ColorGreen
+					aBoards.colors[i][j] = colorGreen
 				case "t":
-					aBoards.colors[i][j] = termbox.ColorMagenta
+					aBoards.colors[i][j] = colorMagenta
 				case "z":
-					aBoards.colors[i][j] = termbox.ColorRed
+					aBoards.colors[i][j] = colorRed
 				}
 			}
 		}
@@ -90,29 +90,29 @@ func loadUserBoards() error {
 
 	for _, boardLoad := range settings.Boards {
 		aBoards := Boards{name: boardLoad.Name}
-		aBoards.colors = make([][]termbox.Attribute, len(boardLoad.Mino))
+		aBoards.colors = make([][]tcell.Color, len(boardLoad.Mino))
 		aBoards.rotation = boardLoad.Rotation
 
 		for i := 0; i < len(boardLoad.Mino); i++ {
-			aBoards.colors[i] = make([]termbox.Attribute, len(boardLoad.Mino[i]))
+			aBoards.colors[i] = make([]tcell.Color, len(boardLoad.Mino[i]))
 			for j := 0; j < len(boardLoad.Mino[i]); j++ {
 				switch boardLoad.Mino[i][j] {
 				case "b":
-					aBoards.colors[i][j] = blankColor
+					aBoards.colors[i][j] = colorBlank
 				case "i":
-					aBoards.colors[i][j] = termbox.ColorCyan
+					aBoards.colors[i][j] = colorCyan
 				case "j":
-					aBoards.colors[i][j] = termbox.ColorBlue
+					aBoards.colors[i][j] = colorBlue
 				case "l":
-					aBoards.colors[i][j] = termbox.ColorWhite
+					aBoards.colors[i][j] = colorWhite
 				case "o":
-					aBoards.colors[i][j] = termbox.ColorYellow
+					aBoards.colors[i][j] = colorYellow
 				case "s":
-					aBoards.colors[i][j] = termbox.ColorGreen
+					aBoards.colors[i][j] = colorGreen
 				case "t":
-					aBoards.colors[i][j] = termbox.ColorMagenta
+					aBoards.colors[i][j] = colorMagenta
 				case "z":
-					aBoards.colors[i][j] = termbox.ColorRed
+					aBoards.colors[i][j] = colorRed
 				}
 			}
 		}
@@ -140,21 +140,21 @@ func saveUserBoards() error {
 			aBoards.Mino[i] = make([]string, len(boards[x].colors[i]))
 			for j := 0; j < len(boards[x].colors[i]); j++ {
 				switch boards[x].colors[i][j] {
-				case blankColor:
+				case colorBlank:
 					aBoards.Mino[i][j] = "b"
-				case termbox.ColorCyan:
+				case colorCyan:
 					aBoards.Mino[i][j] = "i"
-				case termbox.ColorBlue:
+				case colorBlue:
 					aBoards.Mino[i][j] = "j"
-				case termbox.ColorWhite:
+				case colorWhite:
 					aBoards.Mino[i][j] = "l"
-				case termbox.ColorYellow:
+				case colorYellow:
 					aBoards.Mino[i][j] = "o"
-				case termbox.ColorGreen:
+				case colorGreen:
 					aBoards.Mino[i][j] = "s"
-				case termbox.ColorMagenta:
+				case colorMagenta:
 					aBoards.Mino[i][j] = "t"
-				case termbox.ColorRed:
+				case colorRed:
 					aBoards.Mino[i][j] = "z"
 				}
 			}

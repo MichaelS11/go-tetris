@@ -3,36 +3,67 @@ package main
 import (
 	"time"
 
-	"github.com/nsf/termbox-go"
+	"github.com/gdamore/tcell"
 )
+
+// EventEngineStopRun stop the run of the engine
+type EventEngineStopRun struct {
+	EventGame
+}
 
 // NewEngine creates new engine
 func NewEngine() {
 	engine = &Engine{
-		chanStop: make(chan struct{}, 1),
-		gameOver: true,
-		tickTime: time.Hour,
-		ai:       NewAi(),
+		chanStop:     make(chan struct{}),
+		chanEventKey: make(chan *tcell.EventKey, 8),
+		mode:         engineModeGameOver,
+		tickTime:     time.Hour,
+		ranking:      NewRanking(),
+		ai:           NewAi(),
 	}
+	board.Clear()
+	go engine.Run()
 }
 
 // Run runs the engine
 func (engine *Engine) Run() {
 	logger.Println("Engine Run start")
 
-	var event *termbox.Event
+	var event tcell.Event
+
+loop:
+	for {
+		event = screen.PollEvent()
+		switch eventType := event.(type) {
+		case *tcell.EventKey:
+			select {
+			case engine.chanEventKey <- eventType:
+			default:
+			}
+		case *EventEngineStopRun:
+			break loop
+		case *tcell.EventResize:
+			view.RefreshScreen()
+		default:
+			logger.Printf("event type %T", eventType)
+		}
+	}
+
+	logger.Println("Engine Run end")
+}
+
+// Start the game
+func (engine *Engine) Start() {
+	logger.Println("Engine Start start")
 
 	engine.timer = time.NewTimer(engine.tickTime)
 	engine.timer.Stop()
 	engine.aiTimer = time.NewTimer(engine.tickTime)
 	engine.aiTimer.Stop()
 
-	engine.ranking = NewRanking()
-	board.Clear()
 	view.RefreshScreen()
 
-	engine.keyInput = NewKeyInput()
-	go engine.keyInput.Run()
+	var eventKey *tcell.EventKey
 
 loop:
 	for {
@@ -41,8 +72,8 @@ loop:
 			break loop
 		default:
 			select {
-			case event = <-engine.keyInput.chanKeyInput:
-				engine.keyInput.ProcessEvent(event)
+			case eventKey = <-engine.chanEventKey:
+				engine.ProcessEventKey(eventKey)
 				view.RefreshScreen()
 			case <-engine.timer.C:
 				engine.tick()
@@ -55,15 +86,18 @@ loop:
 		}
 	}
 
-	logger.Println("Engine Run end")
+	screen.PostEventWait(&EventEngineStopRun{})
+
+	logger.Println("Engine Start end")
 }
 
-// Stop stops the engine
+// Stop the game
 func (engine *Engine) Stop() {
 	logger.Println("Engine Stop start")
 
 	if !engine.stopped {
 		engine.stopped = true
+		engine.mode = engineModeStopped
 		close(engine.chanStop)
 	}
 	engine.timer.Stop()
@@ -72,7 +106,7 @@ func (engine *Engine) Stop() {
 	logger.Println("Engine Stop end")
 }
 
-// Pause pauses the engine
+// Pause the game
 func (engine *Engine) Pause() {
 	if !engine.timer.Stop() {
 		select {
@@ -86,21 +120,23 @@ func (engine *Engine) Pause() {
 		default:
 		}
 	}
-	engine.paused = true
+	engine.mode = engineModePaused
 }
 
-// UnPause resumes running the engine
+// UnPause the game
 func (engine *Engine) UnPause() {
 	engine.timer.Reset(engine.tickTime)
 	if engine.aiEnabled {
 		engine.aiTimer.Reset(engine.tickTime / aiTickDivider)
+		engine.mode = engineModeRunWithAI
+	} else {
+		engine.mode = engineModeRun
 	}
-	engine.paused = false
 }
 
 // PreviewBoard sets previewBoard to true
 func (engine *Engine) PreviewBoard() {
-	engine.previewBoard = true
+	engine.mode = engineModePreview
 }
 
 // NewGame resets board and starts a new game
@@ -116,16 +152,17 @@ func (engine *Engine) NewGame() {
 loop:
 	for {
 		select {
-		case <-engine.keyInput.chanKeyInput:
+		case <-engine.chanEventKey:
 		default:
 			break loop
 		}
 	}
 
-	engine.previewBoard = false
-	engine.gameOver = false
 	if engine.aiEnabled {
 		engine.ai.GetBestQueue()
+		engine.mode = engineModeRunWithAI
+	} else {
+		engine.mode = engineModeRun
 	}
 	engine.UnPause()
 
@@ -223,14 +260,14 @@ func (engine *Engine) GameOver() {
 	logger.Println("Engine GameOver start")
 
 	engine.Pause()
-	engine.gameOver = true
+	engine.mode = engineModeGameOver
 
 	view.ShowGameOverAnimation()
 
 loop:
 	for {
 		select {
-		case <-engine.keyInput.chanKeyInput:
+		case <-engine.chanEventKey:
 		default:
 			break loop
 		}
@@ -252,6 +289,7 @@ func (engine *Engine) EnabledAi() {
 // DisableAi disables the AI
 func (engine *Engine) DisableAi() {
 	engine.aiEnabled = false
+	engine.mode = engineModeRun
 	if !engine.aiTimer.Stop() {
 		select {
 		case <-engine.aiTimer.C:
@@ -263,11 +301,11 @@ func (engine *Engine) DisableAi() {
 // EnabledEditMode enables edit mode
 func (engine *Engine) EnabledEditMode() {
 	edit.EnabledEditMode()
-	engine.editMode = true
+	engine.mode = engineModeEdit
 }
 
 // DisableEditMode disables edit mode
 func (engine *Engine) DisableEditMode() {
 	edit.DisableEditMode()
-	engine.editMode = false
+	engine.mode = engineModePreview
 }
