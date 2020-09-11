@@ -49,7 +49,7 @@ func ChangeBoardSize(width int, height int) {
 	board.currentMino = NewMino()
 }
 
-// Clear clears the board to orginal state
+// Clear clears the board to original state
 func (board *Board) Clear() {
 	board.width = len(boards[board.boardsIndex].colors)
 	board.height = len(boards[board.boardsIndex].colors[0])

@@ -22,7 +22,7 @@ func TestMain(m *testing.M) {
 }
 
 func setupForTesting() {
-	logger = log.New(os.Stdout, "", log.Ldate|log.Ltime|log.LUTC|log.Llongfile)
+	logger = log.New(os.Stdout, "", log.Ldate|log.Ltime|log.LUTC|log.Lshortfile)
 
 	rand.Seed(1)
 
